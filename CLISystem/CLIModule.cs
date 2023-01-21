@@ -50,7 +50,7 @@ namespace CLISystem
         {
             Task.Run(() => 
             {
-                LogHelper.Debug($"cli module start...");
+                LogHelper.Debug($"*** cli module start ***");
                 var option = new List<string>();
 
                 while (true)

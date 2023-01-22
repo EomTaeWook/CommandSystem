@@ -1,14 +1,17 @@
 ﻿using CLISystem.Attribude;
 using CLISystem.Interface;
+using CLISystem.Models;
 using Kosher.Framework;
 using System.Reflection;
+using System.Text.Json;
 
 namespace CLISystem
 {
     internal class Builder
     {
-        internal List<string> _processTypeNames = new List<string>();
-        readonly ServiceProvider _serviceProvider = new();
+        internal IList<string> _processTypeNames = new List<string>();
+        internal ServiceProvider _serviceProvider = new();
+
         public void Build()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -23,6 +26,16 @@ namespace CLISystem
                     AddNamedCmdType(attr.Name, item);
                     _processTypeNames.Add(attr.Name);
                 }
+            }
+            _processTypeNames = _processTypeNames.AsReadOnly();
+            if(File.Exists(AliasTable.Path) == true)
+            {
+                var alias = JsonSerializer.Deserialize<List<AliasModel>>(File.ReadAllText(AliasTable.Path));
+                _serviceProvider.AddSingleton(new AliasTable(alias));
+            }
+            else
+            {
+                _serviceProvider.AddSingleton(new AliasTable());
             }
         }
         public void AddProcessorType<T>(T cmdProcessor) where T : class, ICmdProcessor
@@ -39,7 +52,7 @@ namespace CLISystem
             {
                 name = processorType.Name;
             }
-            AddNamedCmdType(name, cmdProcessor);
+            _serviceProvider.AddSingleton(name, cmdProcessor);
             _processTypeNames.Add(name);
         }
         public void AddProcessorType<T>() where T : class, ICmdProcessor
@@ -60,13 +73,9 @@ namespace CLISystem
             _processTypeNames.Add(name);
         }
 
-        private void AddNamedCmdType<T>(string typeName, T implementation) where T : class
-        {
-            _serviceProvider.AddSingleton(typeName, implementation);
-        }
         private void AddNamedCmdType(string typeName, Type type)
         {
-            _serviceProvider.AddSingleton(typeName, type);
+            _serviceProvider.AddTransient(typeName, type);
         }
         public void AddSingletonService<T>(T implementation) where T : class
         {
@@ -75,6 +84,10 @@ namespace CLISystem
         public T GetService<T>(string typeName) where T : class
         {
             return _serviceProvider.GetService<T>(typeName);
+        }
+        public T GetService<T>() where T : class
+        {
+            return _serviceProvider.GetService<T>();
         }
     }
 }

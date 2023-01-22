@@ -1,5 +1,6 @@
 ﻿using CLISystem.Attribude;
 using CLISystem.Interface;
+using CLISystem.Models;
 using System.Text;
 
 namespace CLISystem.Cmd
@@ -7,10 +8,13 @@ namespace CLISystem.Cmd
     [CmdAttribude("?")]
     internal class CmdListProcessCmd : ICmdProcessor
     {
-        readonly Dictionary<string, ICmdProcessor> _cmdMap;
-        public CmdListProcessCmd(Dictionary<string, ICmdProcessor> cmdList)
+        private readonly Dictionary<string, ICmdProcessor> _cmdMap;
+        private readonly AliasTable _aliasTable;
+        public CmdListProcessCmd(Dictionary<string, ICmdProcessor> cmdList,
+            AliasTable aliasTable)
         {
-            _cmdMap = cmdList;
+            _cmdMap = cmdList; 
+            _aliasTable = aliasTable;
         }
         public void Invoke(string[] args)
         {
@@ -19,7 +23,12 @@ namespace CLISystem.Cmd
             {
                 sb.AppendLine($"{item.Key} : {item.Value.Print()}");
             }
-            Console.ForegroundColor = ConsoleColor.White;
+            sb.AppendLine("*** alias table ***");
+            foreach (var item in _aliasTable.GetDatas())
+            {
+                sb.AppendLine($"{item.Alias} : {item.Cmd}");
+            }
+
             Console.WriteLine(sb.ToString());
         }
 

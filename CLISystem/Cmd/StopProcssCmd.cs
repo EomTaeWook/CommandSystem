@@ -9,6 +9,10 @@ namespace CLISystem.Cmd
     {
         public void Invoke(string[] args)
         {
+            if(args.Length == 0)
+            {
+                return;
+            }
             foreach(var item in args)
             {
                 foreach(var process in Process.GetProcesses())

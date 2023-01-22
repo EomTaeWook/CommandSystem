@@ -12,3 +12,7 @@ module.Build();
 module.Run();
 
 
+while(true)
+{
+    Thread.Sleep(33);
+}

@@ -1,75 +1,86 @@
 ﻿using CLISystem.Interface;
 using CLISystem.Models;
 using Kosher.Log;
+using System.Reflection;
 using System.Text;
 
 namespace CLISystem
 {
     public class CLIModule
-    {
-        private readonly Builder builder = new();
+    {        
+        internal readonly Builder _builder = new();
         private readonly Dictionary<string, ICmdProcessor> _cmdProcessor = new();
         private bool _isBuild = false;
-
-        private bool RunCommnad(string line)
+        private Configuration _configuration = new Configuration();
+        public CLIModule(string moduleName = null)
+        {
+            if(string.IsNullOrEmpty(moduleName) == true)
+            {
+                moduleName = Assembly.GetEntryAssembly().GetName().Name;
+            }
+            _configuration.ModuleName = moduleName;
+        }
+        protected virtual void RunCommnad(string line)
         {
             var splits = line.Split(" ");
-
-            var excuted = RunCommnad(splits[0], splits[1..]);
-            if (excuted == false)
-            {
-                LogHelper.Error($"faild to command {splits[0]}");
-            }
-
-            return true;
+            LocalCommand(splits[0], splits[1..]);
         }
-        private bool RunCommnad(string command, string[] options)
+        private void LocalCommand(string command, string[] options)
         {
-            var aliasTable = builder.GetService<AliasTable>();
+            var aliasTable = _builder.GetService<AliasTable>();
             if (aliasTable.Alias.ContainsKey(command) == true)
             {
                 var sb = new StringBuilder();
                 sb.Append(aliasTable.Alias[command].Cmd);
                 sb.Append(String.Join(" ", options));
 
-                return RunCommnad(sb.ToString());
+                RunCommnad(sb.ToString());
             }
-
             if (_cmdProcessor.ContainsKey(command) == false)
             {
-                return false;
+                LogHelper.Error($"not found command : {command}");
+                return;
             }
-            
-            var cmdProcessor = builder.GetService<ICmdProcessor>(command);
-            cmdProcessor.Invoke(options);
 
-            return true;
+            var cmdProcessor = _builder.GetService<ICmdProcessor>(command);
+            try
+            {    
+                cmdProcessor.Invoke(options);
+            }
+            catch(Exception ex)
+            {
+                LogHelper.Error($"failed to command : {ex.Message}");
+            }
         }
+        
         public void AddCmdProcessor<T>(T processor) where T : class, ICmdProcessor
         {
-            builder.AddProcessorType(processor);
+            _builder.AddProcessorType(processor);
         }
         public void AddCmdProcessor<T>() where T : class, ICmdProcessor
         {
-            builder.AddProcessorType<T>();
+            _builder.AddProcessorType<T>();
         }
-        public void Build()
+        public void Build(Configuration configuration = null)
         {
             if(_isBuild == true)
             {
                 throw new InvalidOperationException("already build cli module");
             }
             _isBuild = true;
-            builder.AddSingletonService(_cmdProcessor);
-            builder.Build();
-
-            foreach(var item in builder._processTypeNames)
+            _builder.AddSingletonService(_cmdProcessor);
+            if(configuration == null)
             {
-                var processor = builder.GetService<ICmdProcessor>(item);
+                configuration = _configuration;
+            }
+            _builder.Build(configuration);
+
+            foreach(var item in _builder._processTypeNames)
+            {
+                var processor = _builder.GetService<ICmdProcessor>(item);
                 _cmdProcessor.Add(item, processor);
             }
         }
-        
         public void Run()
         {
             Task.Run(() => 

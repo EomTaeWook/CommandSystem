@@ -1,4 +1,5 @@
 ﻿using CLISystem.Attribude;
+using CLISystem.ConsoleWriter;
 using CLISystem.Interface;
 using CLISystem.Models;
 using Kosher.Framework;
@@ -12,17 +13,17 @@ namespace CLISystem
         internal IList<string> _processTypeNames = new List<string>();
         internal ServiceProvider _serviceProvider = new();
 
-        public void Build()
+        public void Build(Configuration configuration)
         {
             var assembly = Assembly.GetExecutingAssembly();
 
-            var cmdAttribudeType = typeof(CmdAttribude);
+            var cmdAttribudeType = typeof(CmdAttribute);
 
             foreach (var item in assembly.GetTypes())
             {
                 if (item.IsDefined(cmdAttribudeType))
                 {
-                    var attr = item.GetCustomAttribute(cmdAttribudeType) as CmdAttribude;
+                    var attr = item.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
                     AddNamedCmdType(attr.Name, item);
                     _processTypeNames.Add(attr.Name);
                 }
@@ -37,15 +38,20 @@ namespace CLISystem
             {
                 _serviceProvider.AddSingleton(new AliasTable());
             }
+
+            _serviceProvider.AddSingleton(configuration);
+            _serviceProvider.AddSingleton<ModuleConsoleWriter, ModuleConsoleWriter>();
+
+            var _ = _serviceProvider.GetService<ModuleConsoleWriter>();
         }
         public void AddProcessorType<T>(T cmdProcessor) where T : class, ICmdProcessor
         {
-            var cmdAttribudeType = typeof(CmdAttribude);
+            var cmdAttribudeType = typeof(CmdAttribute);
             var processorType = cmdProcessor.GetType();
             string name;
             if (processorType.IsDefined(cmdAttribudeType) == true)
             {
-                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribude;
+                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
                 name = attr.Name;
             }
             else
@@ -57,12 +63,12 @@ namespace CLISystem
         }
         public void AddProcessorType<T>() where T : class, ICmdProcessor
         {
-            var cmdAttribudeType = typeof(CmdAttribude);
+            var cmdAttribudeType = typeof(CmdAttribute);
             var processorType = typeof(T);
             string name;
             if (processorType.IsDefined(cmdAttribudeType) == true)
             {
-                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribude;
+                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
                 name = attr.Name;
             }
             else

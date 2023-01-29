@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("alias")]
+    [Cmd("alias")]
     internal class AliasCmd : ICmdProcessor
     {
         private readonly AliasTable _aliasTable;
@@ -45,7 +45,7 @@ namespace CLISystem.Cmd
 
         public string Print()
         {
-            return $"명령어의 별칭을 설정합니다. alias sp=start process";
+            return $"명령어의 별칭을 설정합니다. alias sp start process";
         }
     }
 }

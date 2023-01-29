@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("?")]
+    [Cmd("?")]
     internal class CmdListProcessCmd : ICmdProcessor
     {
         private readonly Dictionary<string, ICmdProcessor> _cmdMap;

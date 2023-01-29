@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("start")]
+    [Cmd("start")]
     internal class StartProcessCmd : ICmdProcessor
     {
         public void Invoke(string[] args)

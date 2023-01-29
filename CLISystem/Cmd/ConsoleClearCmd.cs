@@ -3,7 +3,7 @@ using CLISystem.Interface;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("clr")]
+    [Cmd("clr")]
     internal class ConsoleClearCmd : ICmdProcessor
     {
         public void Invoke(string[] args)

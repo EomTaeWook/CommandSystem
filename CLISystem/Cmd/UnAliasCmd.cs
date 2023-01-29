@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("unalias")]
+    [Cmd("unalias")]
     internal class UnAliasCmd : ICmdProcessor
     {
         private readonly AliasTable _aliasTable;

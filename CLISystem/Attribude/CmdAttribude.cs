@@ -1,10 +1,10 @@
 ﻿namespace CLISystem.Attribude
 {
-    public class CmdAttribude : Attribute
+    public class CmdAttribute : Attribute
     {
         public string Name { get; private set; }
 
-        public CmdAttribude(string Name)
+        public CmdAttribute(string Name)
         {
             this.Name = Name;
         }

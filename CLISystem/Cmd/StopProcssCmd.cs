@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace CLISystem.Cmd
 {
-    [CmdAttribude("stop")]
+    [Cmd("stop")]
     internal class StopProcssCmd : ICmdProcessor
     {
         public void Invoke(string[] args)

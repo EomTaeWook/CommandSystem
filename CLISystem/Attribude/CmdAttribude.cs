@@ -1,12 +1,13 @@
 ﻿namespace CLISystem.Attribude
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public class CmdAttribute : Attribute
     {
         public string Name { get; private set; }
 
-        public CmdAttribute(string Name)
+        public CmdAttribute(string name)
         {
-            this.Name = Name;
+            this.Name = name;
         }
     }
 }

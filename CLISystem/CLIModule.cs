@@ -9,7 +9,7 @@ namespace CLISystem
     public class CLIModule
     {        
         internal readonly Builder _builder = new();
-        private readonly Dictionary<string, ICmdProcessor> _cmdProcessor = new();
+
         private bool _isBuild = false;
         private Configuration _configuration = new Configuration();
         public CLIModule(string moduleName = null)
@@ -36,13 +36,14 @@ namespace CLISystem
 
                 RunCommnad(sb.ToString());
             }
-            if (_cmdProcessor.ContainsKey(command) == false)
+            var cmdProcessor = _builder.GetService<ICmdProcessor>(command);
+
+            if(cmdProcessor == null)
             {
                 LogHelper.Error($"not found command : {command}");
                 return;
             }
-
-            var cmdProcessor = _builder.GetService<ICmdProcessor>(command);
+            
             try
             {    
                 cmdProcessor.Invoke(options);
@@ -68,35 +69,25 @@ namespace CLISystem
                 throw new InvalidOperationException("already build cli module");
             }
             _isBuild = true;
-            _builder.AddSingletonService(_cmdProcessor);
+
             if(configuration == null)
             {
                 configuration = _configuration;
             }
             _builder.Build(configuration);
-
-            foreach(var item in _builder._processTypeNames)
-            {
-                var processor = _builder.GetService<ICmdProcessor>(item);
-                _cmdProcessor.Add(item, processor);
-            }
         }
         public void Run()
         {
-            Task.Run(() => 
+            Console.WriteLine($"*** cli module start ***");
+            while (true)
             {
-                Console.WriteLine($"*** cli module start ***");
-
-                while (true)
+                var line = Console.ReadLine();
+                if (line.Length == 0)
                 {
-                    var line = Console.ReadLine();
-                    if (line.Length == 0)
-                    {
-                        continue;
-                    }
-                    RunCommnad(line);
+                    continue;
                 }
-            });
+                RunCommnad(line);
+            }
         }
     }
 }

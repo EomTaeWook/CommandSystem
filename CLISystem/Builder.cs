@@ -10,25 +10,21 @@ namespace CLISystem
 {
     internal class Builder
     {
-        internal IList<string> _processTypeNames = new List<string>();
         internal ServiceProvider _serviceProvider = new();
-
+        internal ProcessorNames _processorNames;
         public void Build(Configuration configuration)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetCallingAssembly();
 
-            var cmdAttribudeType = typeof(CmdAttribute);
+            _processorNames = new ProcessorNames(_serviceProvider);
 
             foreach (var item in assembly.GetTypes())
             {
-                if (item.IsDefined(cmdAttribudeType))
+                if(typeof(ICmdProcessor).IsAssignableFrom(item) && item.IsInterface == false)
                 {
-                    var attr = item.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
-                    AddNamedCmdType(attr.Name, item);
-                    _processTypeNames.Add(attr.Name);
+                    AddProcessorType(item);
                 }
             }
-            _processTypeNames = _processTypeNames.AsReadOnly();
             if(File.Exists(AliasTable.Path) == true)
             {
                 var alias = JsonSerializer.Deserialize<List<AliasModel>>(File.ReadAllText(AliasTable.Path));
@@ -38,7 +34,7 @@ namespace CLISystem
             {
                 _serviceProvider.AddSingleton(new AliasTable());
             }
-
+            _serviceProvider.AddSingleton(_processorNames);
             _serviceProvider.AddSingleton(configuration);
             _serviceProvider.AddSingleton<ModuleConsoleWriter, ModuleConsoleWriter>();
 
@@ -46,46 +42,68 @@ namespace CLISystem
         }
         public void AddProcessorType<T>(T cmdProcessor) where T : class, ICmdProcessor
         {
-            var cmdAttribudeType = typeof(CmdAttribute);
+            var cmdAttributeType = typeof(CmdAttribute);
+            var multipleCmdAttributeType = typeof(MultipleCmdAttribute);
             var processorType = cmdProcessor.GetType();
-            string name;
-            if (processorType.IsDefined(cmdAttribudeType) == true)
+            
+            if (processorType.IsDefined(cmdAttributeType) == true)
             {
-                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
-                name = attr.Name;
+                var attr = processorType.GetCustomAttribute(cmdAttributeType) as CmdAttribute;
+                var name = attr.Name;
+                _serviceProvider.AddSingleton(name, cmdProcessor);
+                _processorNames.Add(name);
+            }
+            else if(processorType.IsDefined(multipleCmdAttributeType) == true)
+            {
+                var attr = processorType.GetCustomAttribute(multipleCmdAttributeType) as MultipleCmdAttribute;
+                foreach(var name in attr.Names)
+                {
+                    _serviceProvider.AddSingleton(name, cmdProcessor);
+                    _processorNames.Add(name);
+                }
             }
             else
             {
-                name = processorType.Name;
+                var name = processorType.Name;
+                _serviceProvider.AddSingleton(name, cmdProcessor);
+                _processorNames.Add(name);
             }
-            _serviceProvider.AddSingleton(name, cmdProcessor);
-            _processTypeNames.Add(name);
+        }
+        public void AddProcessorType(Type type)
+        {
+            if(typeof(ICmdProcessor).IsAssignableFrom(type) == false || type.IsInterface == true)
+            {
+                throw new InvalidCastException(nameof(type));
+            }
+            var cmdAttributeType = typeof(CmdAttribute);
+            var multipleCmdAttributeType = typeof(MultipleCmdAttribute);
+
+            if (type.IsDefined(cmdAttributeType) == true)
+            {
+                var attr = type.GetCustomAttribute(cmdAttributeType) as CmdAttribute;
+                var name = attr.Name;
+                _serviceProvider.AddTransient(name, type);
+                _processorNames.Add(name);
+            }
+            else if (type.IsDefined(multipleCmdAttributeType) == true)
+            {
+                var attr = type.GetCustomAttribute(multipleCmdAttributeType) as MultipleCmdAttribute;
+                foreach (var name in attr.Names)
+                {
+                    _serviceProvider.AddTransient(name, type);
+                    _processorNames.Add(name);
+                }
+            }
+            else
+            {
+                var name = type.Name;
+                _serviceProvider.AddTransient(name, type);
+                _processorNames.Add(name);
+            }
         }
         public void AddProcessorType<T>() where T : class, ICmdProcessor
         {
-            var cmdAttribudeType = typeof(CmdAttribute);
-            var processorType = typeof(T);
-            string name;
-            if (processorType.IsDefined(cmdAttribudeType) == true)
-            {
-                var attr = processorType.GetCustomAttribute(cmdAttribudeType) as CmdAttribute;
-                name = attr.Name;
-            }
-            else
-            {
-                name = processorType.Name;
-            }
-            AddNamedCmdType(name, processorType);
-            _processTypeNames.Add(name);
-        }
-
-        private void AddNamedCmdType(string typeName, Type type)
-        {
-            _serviceProvider.AddTransient(typeName, type);
-        }
-        public void AddSingletonService<T>(T implementation) where T : class
-        {
-            _serviceProvider.AddSingleton(implementation);
+            AddProcessorType(typeof(T));
         }
         public T GetService<T>(string typeName) where T : class
         {

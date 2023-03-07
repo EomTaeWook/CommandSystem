@@ -19,7 +19,4 @@
       <HintPath>..\ExternDll\Kosher.Sockets.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Net\Protocol\Generated\" />
-  </ItemGroup>
 </Project>

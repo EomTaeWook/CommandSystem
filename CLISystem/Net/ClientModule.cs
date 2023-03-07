@@ -1,9 +1,7 @@
-﻿using CLISystem.Models;
+﻿using CLISystem.Net.Handler;
 using CLISystem.Net.Protocol;
-using CLISystem.Net.Protocol.Handler;
 using CLISystem.Net.Protocol.Models;
 using CLISystem.Net.Serializer;
-using Kosher.Log;
 using Kosher.Sockets;
 using Kosher.Sockets.Interface;
 
@@ -32,7 +30,7 @@ namespace CLISystem.Net
 
         public void Run(string ip, int port)
         {
-            SCProtocolHandler.Init();
+            HandlerBinder<SCProtocolHandler, string>.Bind<SCProtocol>();
             _client = new InternalClient(new SessionCreator(MakeSerializersFunc));
             _client.Connect(ip, port);
         }
@@ -46,7 +44,7 @@ namespace CLISystem.Net
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
             var handler = new SCProtocolHandler();
-            var handlers = new List<IProtocolHandler>() { handler };
+            var handlers = new List<IProtocolHandler<string>>() { handler };
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,

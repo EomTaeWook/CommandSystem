@@ -5,36 +5,35 @@ using System.Text;
 
 namespace CLISystem.Cmd
 {
-    [Cmd("?")]
-    internal class CmdListProcessCmd : ICmdProcessor
+    [MultipleCmd("help","?","h")]
+    internal class HelpCmd : ICmdProcessor
     {
-        private readonly Dictionary<string, ICmdProcessor> _cmdMap;
+        private readonly ProcessorNames _processorNames; 
         private readonly AliasTable _aliasTable;
-        public CmdListProcessCmd(Dictionary<string, ICmdProcessor> cmdList,
+        public HelpCmd(ProcessorNames processorNames,
             AliasTable aliasTable)
         {
-            _cmdMap = cmdList; 
+            _processorNames = processorNames; 
             _aliasTable = aliasTable;
         }
         public void Invoke(string[] args)
         {
             var sb = new StringBuilder();
-            foreach(var item in _cmdMap)
+            foreach (var name in _processorNames)
             {
-                sb.AppendLine($"{item.Key} : {item.Value.Print()}");
+                var processor = _processorNames.GetCmdProcessor(name);
+                sb.AppendLine($"{name} : {processor.Print()}");
             }
-            sb.AppendLine("*** alias table ***");
             foreach (var item in _aliasTable.GetDatas())
             {
                 sb.AppendLine($"{item.Alias} : {item.Cmd}");
             }
-
             Console.WriteLine(sb.ToString());
         }
 
         public string Print()
         {
-            return $"현재 등록된 명령어를 출력합니다.";
+            return "현재 등록된 명령어를 보여줍니다.";
         }
     }
 }

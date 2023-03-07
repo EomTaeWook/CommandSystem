@@ -6,10 +6,11 @@ using Kosher.Log;
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}KosherLog.config"));
 LogBuilder.Build();
 
-var module = new NetClientCLIModule();
+var module = new CLIModule();
 
 module.Build();
-module.Run("127.0.0.1", 31000);
+module.Run();
+//module.Run("127.0.0.1", 31000);
 
 
 

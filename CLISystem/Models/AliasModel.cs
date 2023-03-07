@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-
-namespace CLISystem.Models
+﻿namespace CLISystem.Models
 {
     public class AliasModel
     {

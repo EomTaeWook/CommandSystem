@@ -1,19 +1,21 @@
 ﻿using CLISystem.Models;
+using CLISystem.Net.Protocol;
 using CLISystem.Net.Protocol.Models;
 using Kosher.Log;
 using Kosher.Sockets;
+using Kosher.Sockets.Attribute;
 using Kosher.Sockets.Interface;
 using System.Text.Json;
 
-namespace CLISystem.Net.Protocol.Handler
+namespace CLISystem.Net.Handler
 {
-    public partial class CSProtocolHandler : ISessionComponent, IProtocolHandler
+    public partial class CSProtocolHandler : ISessionComponent, IProtocolHandler<string>
     {
         public Session Session { get; private set; }
         public void Dispose()
         {
         }
-        
+
         public void SetSession(Session session)
         {
             Session = session;
@@ -22,9 +24,10 @@ namespace CLISystem.Net.Protocol.Handler
         {
             return JsonSerializer.Deserialize<T>(body);
         }
+        [ProtocolName("RemoteCommand")]
         public void Process(RemoteCommand remoteCommand)
         {
-            if(string.IsNullOrEmpty(remoteCommand.Cmd) == true)
+            if (string.IsNullOrEmpty(remoteCommand.Cmd) == true)
             {
                 LogHelper.Error($"command is empty");
                 {
@@ -36,7 +39,7 @@ namespace CLISystem.Net.Protocol.Handler
                     });
                     Session.Send(packet);
                 }
-                
+
                 return;
             }
             else
@@ -50,8 +53,9 @@ namespace CLISystem.Net.Protocol.Handler
                     });
                 Session.Send(packet);
             }
-            
+
         }
+        [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {
             var config = NetCLIModule.Instance._builder.GetService<Configuration>();

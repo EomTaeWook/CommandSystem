@@ -11,6 +11,12 @@ namespace CLISystem.Net.Handler
     {
         public Session Session { get; private set; }
 
+        NetClientCLIModule _cliModule;
+        public SCProtocolHandler(NetClientCLIModule cliModule)
+        {
+            _cliModule = cliModule;
+        }
+
         public void Dispose()
         {
 
@@ -23,7 +29,7 @@ namespace CLISystem.Net.Handler
         [ProtocolName("GetModuleInfoResponse")]
         public void Process(GetModuleInfoResponse res)
         {
-            var config = NetClientCLIModule.Instance._builder.GetService<Configuration>();
+            var config = _cliModule._builder.GetService<Configuration>();
 
             config.ModuleName = res.ModuleName;
         }

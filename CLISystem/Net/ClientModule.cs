@@ -27,7 +27,11 @@ namespace CLISystem.Net
         }
 
         InternalClient _client;
-
+        NetClientCLIModule _netClientCLIModule;
+        public void SetNetCLIModule(NetClientCLIModule netClientCLIModule)
+        {
+            _netClientCLIModule = netClientCLIModule;
+        }
         public void Run(string ip, int port)
         {
             HandlerBinder<SCProtocolHandler, string>.Bind<SCProtocol>();
@@ -43,7 +47,7 @@ namespace CLISystem.Net
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
-            var handler = new SCProtocolHandler();
+            var handler = new SCProtocolHandler(_netClientCLIModule);
             var handlers = new List<IProtocolHandler<string>>() { handler };
 
             return Tuple.Create<IPacketSerializer,

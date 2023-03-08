@@ -12,11 +12,13 @@ namespace CLISystem
     {
         internal ServiceProvider _serviceProvider = new();
         internal ProcessorNames _processorNames;
+        public Builder()
+        {
+            _processorNames = new ProcessorNames(_serviceProvider);
+        }
         public void Build(Configuration configuration)
         {
             var assembly = Assembly.GetCallingAssembly();
-
-            _processorNames = new ProcessorNames(_serviceProvider);
 
             foreach (var item in assembly.GetTypes())
             {

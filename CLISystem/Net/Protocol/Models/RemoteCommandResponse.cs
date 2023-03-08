@@ -1,6 +1,4 @@
-﻿using Kosher.Sockets.Interface;
-
-namespace CLISystem.Net.Protocol.Models
+﻿namespace CLISystem.Net.Protocol.Models
 {
     public class RemoteCommandResponse
     {

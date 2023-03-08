@@ -9,8 +9,13 @@ using System.Text.Json;
 
 namespace CLISystem.Net.Handler
 {
-    public partial class CSProtocolHandler : ISessionComponent, IProtocolHandler<string>
+    public class CSProtocolHandler : ISessionComponent, IProtocolHandler<string>
     {
+        private NetCLIModule _netCLIModule;
+        public CSProtocolHandler(NetCLIModule netCLIModule)
+        {
+            _netCLIModule = netCLIModule;
+        }
         public Session Session { get; private set; }
         public void Dispose()
         {
@@ -44,7 +49,7 @@ namespace CLISystem.Net.Handler
             }
             else
             {
-                NetCLIModule.Instance.ProcessCommnad(remoteCommand.Cmd, out string body);
+                _netCLIModule.ProcessCommnad(remoteCommand.Cmd, out string body);
                 var packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
                     new RemoteCommandResponse()
                     {
@@ -58,7 +63,7 @@ namespace CLISystem.Net.Handler
         [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {
-            var config = NetCLIModule.Instance._builder.GetService<Configuration>();
+            var config = _netCLIModule._builder.GetService<Configuration>();
             var item = new GetModuleInfoResponse()
             {
                 ModuleName = config.ModuleName

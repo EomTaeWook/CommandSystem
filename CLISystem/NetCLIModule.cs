@@ -5,8 +5,7 @@ namespace CLISystem
 {
     public class NetCLIModule : CLIModule
     {
-        public static NetCLIModule Instance;
-        private ServerModule _serverModule;
+        private readonly ServerModule _serverModule;
         public NetCLIModule(string moduleName = null) : base(moduleName)
         {
             _serverModule = new ServerModule();
@@ -29,9 +28,11 @@ namespace CLISystem
 
         public void Run(int port)
         {
-            this.Run();
-            _serverModule.Run(port, this._builder);
-            Instance = this;
+            Task.Run(() => {
+                this.Run();
+                _serverModule.SetNetCLIModule(this);
+                _serverModule.Run(port, this._builder);
+            });
         }
     }
 }

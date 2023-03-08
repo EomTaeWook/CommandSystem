@@ -11,7 +11,7 @@ namespace CLISystem
         internal readonly Builder _builder = new();
 
         private bool _isBuild = false;
-        private Configuration _configuration = new Configuration();
+        private readonly Configuration _configuration = new Configuration();
         public CLIModule(string moduleName = null)
         {
             if(string.IsNullOrEmpty(moduleName) == true)
@@ -32,7 +32,7 @@ namespace CLISystem
             {
                 var sb = new StringBuilder();
                 sb.Append(aliasTable.Alias[command].Cmd);
-                sb.Append(String.Join(" ", options));
+                sb.Append(string.Join(" ", options));
 
                 RunCommnad(sb.ToString());
             }
@@ -46,7 +46,7 @@ namespace CLISystem
             
             try
             {    
-                cmdProcessor.Invoke(options);
+                cmdProcessor.Invoke(options);      
             }
             catch(Exception ex)
             {

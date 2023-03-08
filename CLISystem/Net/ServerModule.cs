@@ -29,9 +29,7 @@ namespace CLISystem.Net
         }
 
         InternalServer _server;
-        public ServerModule()
-        {
-        }
+        NetCLIModule _cliModule;
         public void Run(int port, Builder builder)
         {
             HandlerBinder<CSProtocolHandler, string>.Bind<SCProtocol>();
@@ -40,10 +38,13 @@ namespace CLISystem.Net
             _server.Start(port);
             Console.WriteLine($"*** cli server start : port {port} ***");
         }
-
+        public void SetNetCLIModule(NetCLIModule netCLIModule)
+        {
+            _cliModule = netCLIModule;
+        }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
-            CSProtocolHandler handler = new CSProtocolHandler();
+            CSProtocolHandler handler = new CSProtocolHandler(_cliModule);
             var handlers = new List<IProtocolHandler<string>>() { handler };
 
             return Tuple.Create<IPacketSerializer,

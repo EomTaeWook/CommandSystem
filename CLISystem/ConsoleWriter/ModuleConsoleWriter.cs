@@ -24,6 +24,10 @@ namespace CLISystem.ConsoleWriter
         {
             Console.SetCursorPosition(0, Console.GetCursorPosition().Top);
             _oldWriter.WriteLine(line);
+            
+        }
+        public void Refresh()
+        {
             Console.ForegroundColor = ConsoleColor.White;
             _oldWriter.Write($"{_configuration.ModuleName} > ");
         }

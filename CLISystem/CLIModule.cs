@@ -1,4 +1,5 @@
-﻿using CLISystem.Interface;
+﻿using CLISystem.ConsoleWriter;
+using CLISystem.Interface;
 using CLISystem.Models;
 using Kosher.Log;
 using System.Reflection;
@@ -36,16 +37,19 @@ namespace CLISystem
 
                 RunCommnad(sb.ToString());
             }
-            var cmdProcessor = _builder.GetService<ICmdProcessor>(command);
 
-            if(cmdProcessor == null)
+            ICmdProcessor cmdProcessor;
+            try
+            {
+                cmdProcessor = _builder.GetService<ICmdProcessor>(command);
+            }
+            catch
             {
                 LogHelper.Error($"not found command : {command}");
                 return;
             }
-            
             try
-            {    
+            {
                 cmdProcessor.Invoke(options);      
             }
             catch(Exception ex)
@@ -79,8 +83,10 @@ namespace CLISystem
         public void Run()
         {
             Console.WriteLine($"*** cli module start ***");
+            var writer = _builder.GetService<ModuleConsoleWriter>();
             while (true)
             {
+                writer.Refresh();
                 var line = Console.ReadLine();
                 if (line.Length == 0)
                 {

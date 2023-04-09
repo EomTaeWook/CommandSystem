@@ -1,6 +1,8 @@
 ﻿using CLISystem.Attribude;
 using CLISystem.Interface;
 using CLISystem.Models;
+using Kosher.Framework;
+using System;
 using System.Text;
 
 namespace CLISystem.Cmd
@@ -8,27 +10,31 @@ namespace CLISystem.Cmd
     [MultipleCmd("help","?","h")]
     internal class HelpCmd : ICmdProcessor
     {
-        private readonly ProcessorNames _processorNames; 
+        private readonly HashSet<string> _cmdToMap;
         private readonly AliasTable _aliasTable;
-        public HelpCmd(ProcessorNames processorNames,
-            AliasTable aliasTable)
+        private readonly ServiceProvider _serviceProvider;
+        public HelpCmd(AliasTable aliasTable, HashSet<string> cmdToMap, ServiceProvider serviceProvider)
         {
-            _processorNames = processorNames; 
             _aliasTable = aliasTable;
+            _cmdToMap = cmdToMap;
+            _serviceProvider = serviceProvider;
         }
-        public void Invoke(string[] args)
+
+        public Task InvokeAsync(string[] args)
         {
             var sb = new StringBuilder();
-            foreach (var name in _processorNames)
+            
+            foreach (var name in _cmdToMap)
             {
-                var processor = _processorNames.GetCmdProcessor(name);
-                sb.AppendLine($"{name} : {processor.Print()}");
+                var cmd = _serviceProvider.GetService<ICmdProcessor>(name);
+                sb.AppendLine($"{name} : {cmd.Print()}");
             }
             foreach (var item in _aliasTable.GetDatas())
             {
                 sb.AppendLine($"{item.Alias} : {item.Cmd}");
             }
             Console.WriteLine(sb.ToString());
+            return Task.CompletedTask;
         }
 
         public string Print()

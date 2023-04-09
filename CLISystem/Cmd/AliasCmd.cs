@@ -15,7 +15,7 @@ namespace CLISystem.Cmd
             _aliasTable = aliasTable;
         }
 
-        public async void Invoke(string[] args)
+        public async Task InvokeAsync(string[] args)
         {
             if (args.Length == 0)
             {
@@ -29,7 +29,7 @@ namespace CLISystem.Cmd
             else
             {
                 var aliasCmd = args[0];
-                var cmd = String.Join(' ', args, 1, args.Length -1);
+                var cmd = String.Join(' ', args, 1, args.Length - 1);
 
                 _aliasTable.AddAlias(new AliasModel()
                 {

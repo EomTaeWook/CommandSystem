@@ -2,8 +2,7 @@
 {
     public interface ICmdProcessor
     {
-        void Invoke(string[] args);
-
+        Task InvokeAsync(string[] args);
         string Print();
     }
 }

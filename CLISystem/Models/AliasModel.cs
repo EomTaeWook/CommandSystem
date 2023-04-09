@@ -6,6 +6,7 @@
 
         public string Cmd { get; set; }
     }
+
     internal class AliasTable
     {
         public static readonly string Path = $"{AppContext.BaseDirectory}aliasTable.json";

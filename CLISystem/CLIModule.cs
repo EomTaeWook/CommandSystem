@@ -50,7 +50,7 @@ namespace CLISystem
             }
             try
             {
-                cmdProcessor.Invoke(options);      
+                cmdProcessor.InvokeAsync(options).GetAwaiter().GetResult();
             }
             catch(Exception ex)
             {

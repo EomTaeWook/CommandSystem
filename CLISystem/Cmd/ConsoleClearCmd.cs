@@ -6,9 +6,10 @@ namespace CLISystem.Cmd
     [Cmd("clr")]
     internal class ConsoleClearCmd : ICmdProcessor
     {
-        public void Invoke(string[] args)
+        public Task InvokeAsync(string[] args)
         {
             Console.Clear();
+            return Task.CompletedTask;
         }
 
         public string Print()

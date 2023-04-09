@@ -14,9 +14,9 @@ namespace CLISystem.Cmd
             _aliasTable = aliasTable;
         }
 
-        public async void Invoke(string[] args)
+        public async Task InvokeAsync(string[] args)
         {
-            foreach(var item in args)
+            foreach (var item in args)
             {
                 _aliasTable.RemoveAlias(item);
             }

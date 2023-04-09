@@ -7,27 +7,29 @@ namespace CLISystem.Cmd
     [Cmd("stop")]
     internal class StopProcssCmd : ICmdProcessor
     {
-        public void Invoke(string[] args)
+        public Task InvokeAsync(string[] args)
         {
-            if(args.Length == 0)
+            if (args.Length == 0)
             {
-                return;
+                return Task.CompletedTask;
             }
-            foreach(var item in args)
+            foreach (var item in args)
             {
-                foreach(var process in Process.GetProcesses())
+                foreach (var process in Process.GetProcesses())
                 {
-                    if(process.MainWindowHandle == 0)
+                    if (process.MainWindowHandle == 0)
                     {
                         continue;
                     }
-                    if(process.MainModule.FileName.Equals(item))
+                    if (process.MainModule.FileName.Equals(item))
                     {
                         process.Kill();
                     }
                 }
             }
+            return Task.CompletedTask;
         }
+
         public string Print()
         {
             return $"Process를 정지시킵니다.";

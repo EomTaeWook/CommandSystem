@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF $(ConfigurationName) == Release (&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)CommandSystem.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;)" />
+  </Target>
+  <ItemGroup>
+    <Reference Include="Kosher">
+      <HintPath>..\ExternDll\Kosher.dll</HintPath>
+    </Reference>
+    <Reference Include="Kosher.Extensions">
+      <HintPath>..\ExternDll\Kosher.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Kosher.Sockets">
+      <HintPath>..\ExternDll\Kosher.Sockets.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

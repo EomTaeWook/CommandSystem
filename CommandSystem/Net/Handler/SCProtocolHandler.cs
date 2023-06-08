@@ -1,9 +1,8 @@
-﻿using CommandSystem;
-using CommandSystem.Models;
+﻿using CommandSystem.Models;
 using CommandSystem.Net.Protocol.Models;
-using Kosher.Sockets;
-using Kosher.Sockets.Attribute;
-using Kosher.Sockets.Interface;
+using Dignus.Sockets;
+using Dignus.Sockets.Attribute;
+using Dignus.Sockets.Interface;
 using System.Text.Json;
 
 namespace CommandSystem.Net.Handler

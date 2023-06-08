@@ -2,7 +2,7 @@
 using CommandSystem.ConsoleWriter;
 using CommandSystem.Interface;
 using CommandSystem.Models;
-using Kosher.Log;
+using Dignus.Log;
 using System.Reflection;
 using System.Text;
 

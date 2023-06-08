@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Attribude;
 using CommandSystem.Interface;
 using CommandSystem.Models;
-using Kosher.Framework;
+using Dignus.DependencyInjection;
 using System.Text;
 
 namespace CommandSystem.Cmd

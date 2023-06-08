@@ -2,16 +2,15 @@
 using CommandSystem.Net.Handler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
-using Kosher.Log;
-using Kosher.Sockets;
-using Kosher.Sockets.Interface;
-using Kosher.Sockets.ObjectPool;
+using Dignus.Log;
+using Dignus.Sockets;
+using Dignus.Sockets.Interface;
 
 namespace CommandSystem.Net
 {
     internal class ServerModule
     {
-        internal class InternalServer : BaseServer
+        internal class InternalServer : ServerBase
         {
             private readonly string _moduleName;
             public InternalServer(string moduleName, SessionCreator sessionCreator) : base(sessionCreator)
@@ -35,7 +34,7 @@ namespace CommandSystem.Net
         {
             Configuration configuration = builder.GetService<Configuration>();
             _server = new InternalServer(configuration.ModuleName,
-                new SessionCreator(MakeSerializersFunc, LohMemoryPool<byte>.Instance));
+                new SessionCreator(MakeSerializersFunc));
             _server.Start(port);
             Console.WriteLine($"*** cli server start : port {port} ***");
         }

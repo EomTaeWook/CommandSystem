@@ -1,8 +1,7 @@
-﻿using Kosher.Collections;
-using Kosher.Log;
-using Kosher.Sockets.Extensions;
-using Kosher.Sockets.Interface;
-using System.IO;
+﻿using Dignus.Collections;
+using Dignus.Log;
+using Dignus.Sockets.Extensions;
+using Dignus.Sockets.Interface;
 using System.Text;
 
 namespace CommandSystem.Net.Serializer

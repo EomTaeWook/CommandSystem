@@ -2,12 +2,12 @@
 using CommandSystem;
 using CommandSystem.Attribude;
 using CommandSystem.Interface;
-using Kosher.Extensions.Log;
-using Kosher.Log;
+using Dignus.Extensions.Log;
+using Dignus.Log;
 using System.Diagnostics;
 
 
-LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}KosherLog.config"));
+LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
 var module = new NetServerModule(50000);

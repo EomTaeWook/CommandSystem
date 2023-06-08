@@ -1,5 +1,5 @@
-﻿using Kosher.Collections;
-using Kosher.Sockets.Interface;
+﻿using Dignus.Collections;
+using Dignus.Sockets.Interface;
 
 namespace CommandSystem.Net.Serializer
 {

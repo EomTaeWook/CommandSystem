@@ -2,10 +2,9 @@
 using CommandSystem.ConsoleWriter;
 using CommandSystem.Interface;
 using CommandSystem.Models;
-using Kosher.Framework;
+using Dignus.DependencyInjection;
 using System.Reflection;
 using System.Text.Json;
-using System.Xml.Linq;
 
 namespace CommandSystem
 {

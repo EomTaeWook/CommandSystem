@@ -12,16 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Kosher">
-      <HintPath>..\ExternDll\Kosher.dll</HintPath>
+    <Reference Include="Dignus">
+      <HintPath>..\ExternDll\Dignus.dll</HintPath>
     </Reference>
-    <Reference Include="Kosher.Extensions">
-      <HintPath>..\ExternDll\Kosher.Extensions.dll</HintPath>
+    <Reference Include="Dignus.Extensions">
+      <HintPath>..\ExternDll\Dignus.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="KosherLog.config">
+    <None Update="DignusLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

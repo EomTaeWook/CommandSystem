@@ -99,10 +99,9 @@ namespace CommandSystem
         public virtual void Run()
         {
             Console.WriteLine($"*** cli module start ***");
-            var writer = _builder.GetService<ModuleConsoleWriter>();
             while (true)
             {
-                writer.Prompt();
+                Prompt();
                 var line = Console.ReadLine();
                 if (line.Length == 0)
                 {
@@ -110,6 +109,10 @@ namespace CommandSystem
                 }
                 RunCommnad(line);
             }
+        }
+        private void Prompt()
+        {
+            Console.Write($"{_configuration.ModuleName} > ");
         }
     }
 }

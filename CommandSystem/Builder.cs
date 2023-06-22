@@ -1,5 +1,4 @@
 ﻿using CommandSystem.Attribude;
-using CommandSystem.ConsoleWriter;
 using CommandSystem.Interface;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
@@ -16,7 +15,6 @@ namespace CommandSystem
         {
             _serviceProvider.AddSingleton(new HashSet<string>());
             _serviceProvider.AddSingleton(_serviceProvider);
-            _serviceProvider.AddSingleton<ModuleConsoleWriter, ModuleConsoleWriter>();
         }
         
         public void Build(Configuration configuration)
@@ -46,8 +44,6 @@ namespace CommandSystem
                 _serviceProvider.AddSingleton(new AliasTable());
             }
             _serviceProvider.AddSingleton(configuration);
-      
-            var _ = _serviceProvider.GetService<ModuleConsoleWriter>();
         }
         public void AddProcessorType<T>(string commandName, T cmdProcessor) where T : class, ICmdProcessor 
         {

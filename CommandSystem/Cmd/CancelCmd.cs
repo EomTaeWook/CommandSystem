@@ -3,18 +3,20 @@ using CommandSystem.Interface;
 
 namespace CommandSystem.Cmd
 {
-    [Cmd("clr")]
-    internal class ConsoleClearCmd : ICmdProcessor
+    [Cmd("cancel")]
+    internal class CancelCmd : ICmdProcessor
     {
+        public CancelCmd()
+        {
+        }
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
-            Console.Clear();
             return Task.CompletedTask;
         }
 
         public string Print()
         {
-            return "console 창을 지웁니다.";
+            return "실행중인 명령을 중지합니다.";
         }
     }
 }

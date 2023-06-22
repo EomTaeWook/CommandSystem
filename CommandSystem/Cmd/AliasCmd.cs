@@ -14,7 +14,7 @@ namespace CommandSystem.Cmd
         {
             _aliasTable = aliasTable;
         }
-        public async Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             if (args.Length == 0)
             {
@@ -24,6 +24,7 @@ namespace CommandSystem.Cmd
                     sb.AppendLine($"{item.Alias} : {item.Cmd}");
                 }
                 Console.WriteLine(sb.ToString());
+                return Task.CompletedTask;
             }
             else
             {
@@ -48,7 +49,7 @@ namespace CommandSystem.Cmd
 
                 var datas = _aliasTable.GetDatas();
                 var json = JsonSerializer.Serialize(datas);
-                await File.WriteAllTextAsync(AliasTable.Path, json);
+                return File.WriteAllTextAsync(AliasTable.Path, json);
             }
         }
 

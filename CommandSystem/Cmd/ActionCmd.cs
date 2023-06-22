@@ -1,27 +1,20 @@
 ﻿using CommandSystem.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandSystem.Cmd
 {
-
-    public class ActionCmd : ICmdProcessor
+    internal class ActionCmd : ICmdProcessor
     {
-        private Action<string[]> _action;
+        private readonly Func<string[], CancellationToken, Task> _func;
         public string _desc;
-        public ActionCmd(Action<string[]> action, string desc) 
+        public ActionCmd(Func<string[], CancellationToken, Task> func, string desc)
         {
             _desc = desc;
-            _action = action;
+            _func = func;
         }
 
-        public Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
-            _action.Invoke(args);
-            return Task.CompletedTask;
+            return _func.Invoke(args, cancellationToken);
         }
 
         public string Print()

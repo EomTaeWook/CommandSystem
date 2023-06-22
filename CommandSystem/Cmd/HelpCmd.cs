@@ -19,7 +19,7 @@ namespace CommandSystem.Cmd
             _serviceProvider = serviceProvider;
         }
 
-        public Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
 

@@ -7,15 +7,16 @@ namespace CommandSystem.Cmd
     [Cmd("start")]
     internal class StartProcessCmd : ICmdProcessor
     {
-        public async Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             if (args.Length > 0)
             {
-                await Task.Run(() =>
+                return Task.Run(() =>
                 {
                     Process.Start(args[0], args[1..]);
-                });
+                }, cancellationToken);
             }
+            return Task.CompletedTask;
         }
 
         public string Print()

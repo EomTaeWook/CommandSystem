@@ -7,7 +7,7 @@ namespace CommandSystem.Cmd
     [Cmd("stop")]
     internal class StopProcssCmd : ICmdProcessor
     {
-        public Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             if (args.Length == 0)
             {

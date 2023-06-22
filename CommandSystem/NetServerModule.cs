@@ -21,7 +21,7 @@ namespace CommandSystem
             }
             var console = new RedirectConsoleWriter();
 
-            RunCommnad(line);
+            RunCommand(line);
 
             body = console.Release();
 

@@ -14,7 +14,7 @@ namespace CommandSystem
             _ip = ip;
             _port = port;
         }
-        protected override void RunCommnad(string line)
+        protected override void RunCommand(string line)
         {
             _clientModule.SendCommand(line);
         }

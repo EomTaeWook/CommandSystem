@@ -16,7 +16,7 @@ namespace CommandSystem
             _serviceProvider.AddSingleton(new HashSet<string>());
             _serviceProvider.AddSingleton(_serviceProvider);
         }
-        
+
         public void Build(Configuration configuration)
         {
             var assembly = Assembly.GetCallingAssembly();
@@ -29,10 +29,6 @@ namespace CommandSystem
                 {
                     AddProcessorType(item);
                 }
-                //if (typeof(ICmdProcessor).IsAssignableFrom(item) && item.IsInterface == false)
-                //{
-                    
-                //}
             }
             if (File.Exists(AliasTable.Path) == true)
             {

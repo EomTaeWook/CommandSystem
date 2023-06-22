@@ -14,7 +14,7 @@ namespace CommandSystem.Cmd
             _aliasTable = aliasTable;
         }
 
-        public async Task InvokeAsync(string[] args)
+        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             foreach (var item in args)
             {
@@ -22,7 +22,7 @@ namespace CommandSystem.Cmd
             }
             var datas = _aliasTable.GetDatas();
             var json = JsonSerializer.Serialize(datas);
-            await File.WriteAllTextAsync(AliasTable.Path, json);
+            return File.WriteAllTextAsync(AliasTable.Path, json, cancellationToken);
         }
 
         public string Print()

@@ -1,5 +1,8 @@
-﻿namespace CommandSystem.Attribude
+﻿using Dignus.DependencyInjection.Attribute;
+
+namespace CommandSystem.Attribude
 {
+    [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     [AttributeUsage(AttributeTargets.Class)]
     public class CmdAttribute : Attribute
     {

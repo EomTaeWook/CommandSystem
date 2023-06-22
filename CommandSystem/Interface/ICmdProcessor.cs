@@ -2,7 +2,7 @@
 {
     public interface ICmdProcessor
     {
-        Task InvokeAsync(string[] args);
+        Task InvokeAsync(string[] args, CancellationToken cancellationToken);
         string Print();
     }
 }

@@ -11,10 +11,10 @@ namespace CommandSystem.Net.Handler
 {
     public class CSProtocolHandler : ISessionComponent, IProtocolHandler<string>
     {
-        private readonly NetServerModule _netCLIModule;
-        public CSProtocolHandler(NetServerModule netCLIModule)
+        private readonly ServerCmdModule _cmdServerModule;
+        public CSProtocolHandler(ServerCmdModule cmdServerModule)
         {
-            _netCLIModule = netCLIModule;
+            _cmdServerModule = cmdServerModule;
         }
         public Session Session { get; private set; }
         public void Dispose()
@@ -30,8 +30,15 @@ namespace CommandSystem.Net.Handler
             return JsonSerializer.Deserialize<T>(body);
         }
 
+        [ProtocolName("CancelCommand")]
+        public void Process(CancelCommand cancelCommand)
+        {
+            _cmdServerModule.CacelCommand();
+        }
+
+
         [ProtocolName("RemoteCommand")]
-        public void Process(RemoteCommand remoteCommand)
+        public async Task ProcessAsync(RemoteCommand remoteCommand)
         {
             if (string.IsNullOrEmpty(remoteCommand.Cmd) == true)
             {
@@ -50,21 +57,23 @@ namespace CommandSystem.Net.Handler
             }
             else
             {
-                _netCLIModule.ProcessCommnad(remoteCommand.Cmd, out string body);
-                var packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
+                var body = await _cmdServerModule.ProcessCommandAsync(remoteCommand.Cmd);
+                Packet packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
                     new RemoteCommandResponse()
                     {
                         Ok = true,
                         Body = body
                     });
+
                 Session.Send(packet);
+
             }
         }
         
         [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {
-            var config = _netCLIModule._builder.GetService<Configuration>();
+            var config = _cmdServerModule._builder.GetService<Configuration>();
             var item = new GetModuleInfoResponse()
             {
                 ModuleName = config.ModuleName

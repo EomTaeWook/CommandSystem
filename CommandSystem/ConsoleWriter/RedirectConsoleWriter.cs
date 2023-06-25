@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace CommandSystem.ConsoleWriter
 {
@@ -15,14 +16,18 @@ namespace CommandSystem.ConsoleWriter
         }
         public override void Write(char[] buffer)
         {
-            var sb = new StringBuilder(new string(buffer));
-            WriteLine(sb.ToString());
+            _oldWriter.Write(buffer);
+            sb.Append(buffer);
+        }
+        public override void Write(char value)
+        {
+            _oldWriter.Write(value);
+            sb.Append(value);
         }
         public override void WriteLine(string line)
         {
-            Console.SetCursorPosition(0, Console.GetCursorPosition().Top);
             _oldWriter.WriteLine(line);
-            sb.Append(line);
+            sb.AppendLine(line);
         }
         public string Release()
         {

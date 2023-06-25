@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CommandSystem;
 using CommandSystem.Attribude;
-using CommandSystem.Cmd;
 using CommandSystem.Interface;
 using Dignus.Extensions.Log;
 using Dignus.Log;
@@ -11,11 +10,11 @@ using System.Diagnostics;
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
-var module = new NetServerModule(50000);
+var module = new LocalCmdModule();
 
 module.AddCmdProcessor<Close>();
 
-module.AddCmdProcessor("loop", "loop desc", TestAsync);
+module.AddCmdProcessor("l", "loop desc", TestAsync);
 
 module.Build();
 
@@ -23,19 +22,6 @@ Task.Run(() =>
 {
     module.Run();
 });
-
-
-
-
-
-//var client = new NetClientModule("127.0.0.1", 50000);
-
-//client.Build();
-
-//client.Run();
-
-
-//module.Run("127.0.0.1", 31000);
 
 
 while (true)
@@ -46,8 +32,11 @@ while (true)
 async Task TestAsync(string[] args, CancellationToken cancellationToken)
 {
     var count = 0;
-    Console.WriteLine($"sleep : {count++}");
-    await Task.Delay(10000, cancellationToken);
+    while(cancellationToken.IsCancellationRequested == false)
+    {
+        Console.WriteLine($"sleep : {count++}");
+        await Task.Delay(1000, cancellationToken);
+    }
     Console.WriteLine($"end sleep : {count++}");
 }
 

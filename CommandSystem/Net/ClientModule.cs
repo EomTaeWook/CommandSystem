@@ -2,6 +2,7 @@
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
 using CommandSystem.Net.Serializer;
+using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interface;
 
@@ -11,32 +12,64 @@ namespace CommandSystem.Net
     {
         internal class InternalClient : ClientBase
         {
-            public InternalClient(SessionCreator sessionCreator) : base(sessionCreator)
+            public bool IsConnect { get; private set; }
+            Action _onDisconnect;
+            public InternalClient(SessionCreator sessionCreator, Action onDisconnect) : base(sessionCreator)
             {
+                _onDisconnect = onDisconnect;
             }
 
             protected override void OnConnected(Session session)
             {
-
+                IsConnect = true;
+                LogHelper.Info("connect command server");
+                var packet = Packet.MakePacket((ushort)CSProtocol.GetModuleInfo, new GetModuleInfo());
+                Send(packet);
             }
 
             protected override void OnDisconnected(Session session)
             {
-
+                LogHelper.Info("disconnect command server");
+                IsConnect = false;
+                _onDisconnect?.Invoke();
             }
         }
 
-        InternalClient _client;
-        NetClientModule _netClientCLIModule;
-        public void SetNetCLIModule(NetClientModule netClientCLIModule)
+        readonly InternalClient _client;
+        readonly ClientCmdModule _netClienModule;
+        private string _ip;
+        private int _port;
+        public ClientModule(ClientCmdModule netClientModule)
         {
-            _netClientCLIModule = netClientCLIModule;
+            _netClienModule = netClientModule;
+            HandlerBinder<SCProtocolHandler>.BindProtocol<SCProtocol>();
+
+            _client = new InternalClient(new SessionCreator(MakeSerializersFunc), () => 
+            {
+                var _ = ReconnectAsync();
+            });
         }
+
+        private async Task ReconnectAsync()
+        {
+            await Task.Delay(5000);
+            LogHelper.Info("reconnect command server...");
+            _client.Connect(_ip, _port);
+            if (_client.IsConnect == false)
+            {
+                _ = ReconnectAsync();
+            }
+            else
+            {
+                //_netClienModule.Prompt();
+            }
+        }
+
         public void Run(string ip, int port)
         {
-            HandlerBinder<SCProtocolHandler, string>.Bind<SCProtocol>();
-            _client = new InternalClient(new SessionCreator(MakeSerializersFunc));
-            _client.Connect(ip, port);
+            _ip = ip;
+            _port = port;
+            _client.Connect(_ip, _port);
         }
         public void SendCommand(string line)
         {
@@ -45,14 +78,20 @@ namespace CommandSystem.Net
                 Cmd = line
             }));
         }
+        public void CacelCommand()
+        {
+            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand()
+            {
+            }));
+        }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
-            var handler = new SCProtocolHandler(_netClientCLIModule);
+            var handler = new SCProtocolHandler(_netClienModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
-                new PacketDeserializer(handler),
+                new PacketDeserializer<SCProtocolHandler>(handler),
                 new List<ISessionComponent>()
                 {
                     handler

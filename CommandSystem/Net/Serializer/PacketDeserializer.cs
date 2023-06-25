@@ -6,12 +6,13 @@ using System.Text;
 
 namespace CommandSystem.Net.Serializer
 {
-    internal class PacketDeserializer : IPacketDeserializer
+    internal class PacketDeserializer<THandler> : IPacketDeserializer where THandler : IProtocolHandler<string>
     {
-        private readonly IProtocolHandler<string> _handler;
+        private readonly THandler _handler;
+        private const int ProtocolSize = sizeof(ushort);
         private const int LengthSize = sizeof(int);
 
-        public PacketDeserializer(IProtocolHandler<string> handler)
+        public PacketDeserializer(THandler handler)
         {
             _handler = handler;
         }
@@ -23,11 +24,7 @@ namespace CommandSystem.Net.Serializer
                 return false;
             }
             var packetSize = BitConverter.ToInt32(buffer.Peek(LengthSize));
-
-            LogHelper.Debug($"[{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss:fff")}] buffer size : {buffer.Count}");
-
             return buffer.Count >= packetSize + LengthSize;
-
         }
 
         public void Deserialize(ArrayList<byte> buffer)
@@ -38,11 +35,15 @@ namespace CommandSystem.Net.Serializer
 
             int protocol = BitConverter.ToInt16(bytes);
 
-            var body = Encoding.UTF8.GetString(bytes, LengthSize, bytes.Length - LengthSize);
+            var body = Encoding.UTF8.GetString(bytes, ProtocolSize, bytes.Length - ProtocolSize);
 
             if (_handler.CheckProtocol(protocol) == true)
             {
                 _handler.Process(protocol, body);
+            }
+            else
+            {
+                LogHelper.Error($"[{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss:fff")}] not found protocol : {protocol}");
             }
         }
     }

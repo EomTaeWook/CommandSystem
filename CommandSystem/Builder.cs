@@ -2,6 +2,9 @@
 using CommandSystem.Interface;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
+using Dignus.Log;
+using Dignus.Log.LogTarget;
+using Dignus.Log.Model.Rule;
 using System.Reflection;
 using System.Text.Json;
 
@@ -10,7 +13,7 @@ namespace CommandSystem
     internal class Builder
     {
         private readonly ServiceProvider _serviceProvider = new();
-
+        
         public Builder() 
         {
             _serviceProvider.AddSingleton(new HashSet<string>());

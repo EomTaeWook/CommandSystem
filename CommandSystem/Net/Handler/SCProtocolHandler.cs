@@ -11,8 +11,8 @@ namespace CommandSystem.Net.Handler
     {
         public Session Session { get; private set; }
 
-        NetClientModule _cliModule;
-        public SCProtocolHandler(NetClientModule cliModule)
+        readonly ClientCmdModule _cliModule;
+        public SCProtocolHandler(ClientCmdModule cliModule)
         {
             _cliModule = cliModule;
         }
@@ -25,13 +25,21 @@ namespace CommandSystem.Net.Handler
         public void Process(RemoteCommandResponse res)
         {
             Console.WriteLine(res.Body);
+            _cliModule.IsRequested = false;
+            Task.Run(_cliModule.Prompt);
         }
         [ProtocolName("GetModuleInfoResponse")]
-        public void Process(GetModuleInfoResponse res)
+        public void GetModuleInfoResponse(GetModuleInfoResponse res)
         {
             var config = _cliModule._builder.GetService<Configuration>();
 
             config.ModuleName = res.ModuleName;
+        }
+        [ProtocolName("CancelCommandResponse")]
+        public void Process(CancelCommandResponse res)
+        {
+            _cliModule.IsRequested = false;
+            _cliModule.Prompt();
         }
         public void SetSession(Session session)
         {

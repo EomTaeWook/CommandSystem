@@ -4,6 +4,7 @@
     {
         GetModuleInfo,
         RemoteCommand,
+        CancelCommand,
 
         Max
     }

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommandSystem\CommandSystem.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Dignus">
+      <HintPath>..\ExternDll\Dignus.dll</HintPath>
+    </Reference>
+    <Reference Include="Dignus.Extensions">
+      <HintPath>..\ExternDll\Dignus.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Dignus.Sockets">
+      <HintPath>..\ExternDll\Dignus.Sockets.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DignusLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

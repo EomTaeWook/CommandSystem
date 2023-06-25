@@ -19,39 +19,42 @@ namespace CommandSystem.Net
             }
             protected override void OnAccepted(Session session)
             {
-                LogHelper.Debug($"[{_moduleName}]connect session");
+                //LogHelper.Debug($"[{_moduleName}] connect session");
             }
 
             protected override void OnDisconnected(Session session)
             {
-                LogHelper.Debug($"[{_moduleName}]disconnect session");
+                //LogHelper.Debug($"[{_moduleName}] disconnect session");
             }
         }
 
-        InternalServer _server;
-        NetServerModule _cliModule;
+        private InternalServer _server;
+        private readonly ServerCmdModule _cmdModule;
+
+        public ServerModule(ServerCmdModule cmdModule)
+        {
+            HandlerBinder<CSProtocolHandler>.BindProtocol<CSProtocol>();
+
+            _cmdModule = cmdModule;
+        }
         public void Run(int port, Builder builder)
         {
             Configuration configuration = builder.GetService<Configuration>();
+
             _server = new InternalServer(configuration.ModuleName,
                 new SessionCreator(MakeSerializersFunc));
-            _server.Start(port);
-            Console.WriteLine($"*** cli server start : port {port} ***");
-        }
-        public void SetNetCLIModule(NetServerModule netCLIModule)
-        {
-            _cliModule = netCLIModule;
-            HandlerBinder<CSProtocolHandler, string>.Bind<CSProtocol>();
 
+            _server.Start(port);
+            LogHelper.Info($"*** cli server start : port {port} ***");
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
-            CSProtocolHandler handler = new CSProtocolHandler(_cliModule);
+            CSProtocolHandler handler = new CSProtocolHandler(_cmdModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
-                new PacketDeserializer(handler),
+                new PacketDeserializer<CSProtocolHandler>(handler),
                 new List<ISessionComponent>() { handler });
         }
     }

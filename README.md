@@ -1,4 +1,4 @@
-# CLISystem
+# CommandSystem
  
 # Default Command Module
 
@@ -13,7 +13,7 @@ defulatModule.Run();
 # Server Command Module
 
 ```C#
-var serverModule = new NetServerModule(50000);
+var serverModule = new ServerCmdModule(50000);
 
 serverModule.AddCmdProcessor<Close>();
 
@@ -25,11 +25,21 @@ serverModule.Run();
 # Client Commnad Module
 
 ```C#
-var client = new NetClientModule("127.0.0.1", 50000);
+var client = new ClientCmdModule("127.0.0.1", 50000);
 
 client.Build();
 
 client.Run();
+```
+
+# Local Commnad Module
+
+```C#
+var local = new LocalCmdModule();
+
+local.Build();
+
+local.Run();
 ```
 
 # Custom CLI Command
@@ -61,3 +71,5 @@ cli.Run();
 # Base Command
 
 ? - Cmd List
+
+Ctrl + C - Command Stop

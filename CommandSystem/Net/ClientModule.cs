@@ -42,9 +42,9 @@ namespace CommandSystem.Net
         public ClientModule(ClientCmdModule netClientModule)
         {
             _netClienModule = netClientModule;
-            HandlerBinder<SCProtocolHandler>.BindProtocol<SCProtocol>();
+            ProtocolToHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
 
-            _client = new InternalClient(new SessionCreator(MakeSerializersFunc), () => 
+            _client = new InternalClient(new SessionCreator(MakeSerializersFunc), () =>
             {
                 var _ = ReconnectAsync();
             });
@@ -84,15 +84,15 @@ namespace CommandSystem.Net
             {
             }));
         }
-        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {
             var handler = new SCProtocolHandler(_netClienModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
-                ICollection<ISessionComponent>>(new PacketSerializer(),
+                ICollection<ISessionHandler>>(new PacketSerializer(),
                 new PacketDeserializer<SCProtocolHandler>(handler),
-                new List<ISessionComponent>()
+                new List<ISessionHandler>()
                 {
                     handler
                 });

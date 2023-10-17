@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
 {
-    public class CSProtocolHandler : ISessionComponent, IProtocolHandler<string>
+    public class CSProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
         private readonly ServerCmdModule _cmdServerModule;
         public CSProtocolHandler(ServerCmdModule cmdServerModule)
@@ -69,7 +69,7 @@ namespace CommandSystem.Net.Handler
 
             }
         }
-        
+
         [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {

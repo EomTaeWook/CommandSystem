@@ -2,9 +2,6 @@
 using CommandSystem.Interface;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
-using Dignus.Log;
-using Dignus.Log.LogTarget;
-using Dignus.Log.Model.Rule;
 using System.Reflection;
 using System.Text.Json;
 
@@ -13,8 +10,8 @@ namespace CommandSystem
     internal class Builder
     {
         private readonly ServiceProvider _serviceProvider = new();
-        
-        public Builder() 
+
+        public Builder()
         {
             _serviceProvider.AddSingleton(new HashSet<string>());
             _serviceProvider.AddSingleton(_serviceProvider);
@@ -28,7 +25,7 @@ namespace CommandSystem
             {
                 var cmdAttr = item.GetCustomAttribute<CmdAttribute>();
                 var multiCmdAttr = item.GetCustomAttribute<MultipleCmdAttribute>();
-                if(cmdAttr != null || multiCmdAttr != null)
+                if (cmdAttr != null || multiCmdAttr != null)
                 {
                     AddProcessorType(item);
                 }
@@ -44,7 +41,7 @@ namespace CommandSystem
             }
             _serviceProvider.AddSingleton(configuration);
         }
-        public void AddProcessorType<T>(string commandName, T cmdProcessor) where T : class, ICmdProcessor 
+        public void AddProcessorType<T>(string commandName, T cmdProcessor) where T : class, ICmdProcessor
         {
             var cmdToMap = _serviceProvider.GetService<HashSet<string>>();
             cmdToMap.Add(commandName);

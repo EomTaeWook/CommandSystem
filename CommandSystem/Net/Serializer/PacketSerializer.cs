@@ -11,7 +11,7 @@ namespace CommandSystem.Net.Serializer
 
             var packetSize = sendPacket.GetLength();
 
-            var buffer = new ArrayList<byte>();
+            var buffer = new ArrayQueue<byte>();
 
             buffer.AddRange(BitConverter.GetBytes(packetSize));
             buffer.AddRange(BitConverter.GetBytes(sendPacket.Protocol));

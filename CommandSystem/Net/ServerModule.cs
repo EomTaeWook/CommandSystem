@@ -33,7 +33,7 @@ namespace CommandSystem.Net
 
         public ServerModule(ServerCmdModule cmdModule)
         {
-            HandlerBinder<CSProtocolHandler>.BindProtocol<CSProtocol>();
+            ProtocolToHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
 
             _cmdModule = cmdModule;
         }
@@ -47,15 +47,15 @@ namespace CommandSystem.Net
             _server.Start(port);
             LogHelper.Info($"*** cli server start : port {port} ***");
         }
-        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {
             CSProtocolHandler handler = new CSProtocolHandler(_cmdModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
-                ICollection<ISessionComponent>>(new PacketSerializer(),
+                ICollection<ISessionHandler>>(new PacketSerializer(),
                 new PacketDeserializer<CSProtocolHandler>(handler),
-                new List<ISessionComponent>() { handler });
+                new List<ISessionHandler>() { handler });
         }
     }
 }

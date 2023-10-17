@@ -17,9 +17,9 @@ namespace CommandSystem.Net.Serializer
             _handler = handler;
         }
 
-        public bool IsTakedCompletePacket(ArrayList<byte> buffer)
+        public bool IsCompletePacketInBuffer(ArrayQueue<byte> buffer)
         {
-            if(buffer.Count < LengthSize)
+            if (buffer.Count < LengthSize)
             {
                 return false;
             }
@@ -27,7 +27,7 @@ namespace CommandSystem.Net.Serializer
             return buffer.Count >= packetSize + LengthSize;
         }
 
-        public void Deserialize(ArrayList<byte> buffer)
+        public void Deserialize(ArrayQueue<byte> buffer)
         {
             var packetSize = BitConverter.ToInt32(buffer.Read(LengthSize));
 

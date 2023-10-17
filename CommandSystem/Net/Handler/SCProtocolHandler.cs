@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
 {
-    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>
+    public partial class SCProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
         public Session Session { get; private set; }
 

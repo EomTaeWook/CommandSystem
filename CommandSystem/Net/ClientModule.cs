@@ -91,7 +91,7 @@ namespace CommandSystem.Net
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
                 ICollection<ISessionHandler>>(new PacketSerializer(),
-                new PacketDeserializer<SCProtocolHandler>(handler),
+                new ServerPacketDeserializer(handler),
                 new List<ISessionHandler>()
                 {
                     handler

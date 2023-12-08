@@ -54,7 +54,7 @@ namespace CommandSystem.Net
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
                 ICollection<ISessionHandler>>(new PacketSerializer(),
-                new PacketDeserializer<CSProtocolHandler>(handler),
+                new ClientPacketDeserializer(handler),
                 new List<ISessionHandler>() { handler });
         }
     }

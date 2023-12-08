@@ -45,7 +45,7 @@ namespace CommandSystem
         {
             var cmdToMap = _serviceProvider.GetService<HashSet<string>>();
             cmdToMap.Add(commandName);
-            _serviceProvider.AddSingleton(commandName, cmdProcessor);
+            _serviceProvider.AddSingleton(commandName, cmdProcessor.GetType(), cmdProcessor.GetType());
         }
 
         public void AddProcessorType<T>(T cmdProcessor) where T : class, ICmdProcessor

@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Attribude;
 using CommandSystem.Interface;
+using CommandSystem.Internal;
 using CommandSystem.Models;
-using Dignus.DependencyInjection;
 using System.Reflection;
 using System.Text.Json;
 
@@ -9,18 +9,17 @@ namespace CommandSystem
 {
     internal class Builder
     {
-        private readonly ServiceProvider _serviceProvider = new();
+        internal readonly CommandServiceContainer _commandContainer = new();
 
         public Builder()
         {
-            _serviceProvider.AddSingleton(new HashSet<string>());
-            _serviceProvider.AddSingleton(_serviceProvider);
+            _commandContainer.RegisterType(_commandContainer);
+            _commandContainer.RegisterType(new CommandTable());
         }
 
         public void Build(Configuration configuration)
         {
             var assembly = Assembly.GetCallingAssembly();
-
             foreach (var item in assembly.GetTypes())
             {
                 var cmdAttr = item.GetCustomAttribute<CmdAttribute>();
@@ -33,19 +32,19 @@ namespace CommandSystem
             if (File.Exists(AliasTable.Path) == true)
             {
                 var alias = JsonSerializer.Deserialize<List<AliasModel>>(File.ReadAllText(AliasTable.Path));
-                _serviceProvider.AddSingleton(new AliasTable(alias));
+                _commandContainer.RegisterType(new AliasTable(alias));
             }
             else
             {
-                _serviceProvider.AddSingleton(new AliasTable());
+                _commandContainer.RegisterType(new AliasTable());
             }
-            _serviceProvider.AddSingleton(configuration);
+            _commandContainer.RegisterType(configuration);
         }
         public void AddProcessorType<T>(string commandName, T cmdProcessor) where T : class, ICmdProcessor
         {
-            var cmdToMap = _serviceProvider.GetService<HashSet<string>>();
-            cmdToMap.Add(commandName);
-            _serviceProvider.AddSingleton(commandName, cmdProcessor.GetType(), cmdProcessor.GetType());
+            var cmdToMap = _commandContainer.Resolve<CommandTable>();
+            cmdToMap.AddCommand(commandName);
+            _commandContainer.RegisterType(commandName, cmdProcessor);
         }
 
         public void AddProcessorType<T>(T cmdProcessor) where T : class, ICmdProcessor
@@ -79,7 +78,7 @@ namespace CommandSystem
             {
                 throw new InvalidCastException(nameof(type));
             }
-            var cmdToMap = _serviceProvider.GetService<HashSet<string>>();
+            var cmdToMap = _commandContainer.Resolve<CommandTable>();
 
             var cmdAttributeType = typeof(CmdAttribute);
             var multipleCmdAttributeType = typeof(MultipleCmdAttribute);
@@ -87,36 +86,28 @@ namespace CommandSystem
             {
                 var attr = type.GetCustomAttribute(cmdAttributeType) as CmdAttribute;
                 var name = attr.Name;
-                _serviceProvider.AddTransient(name, type);
-                cmdToMap.Add(name);
+                _commandContainer.RegisterType(name, type, Dignus.DependencyInjection.LifeScope.Transient);
+                cmdToMap.AddCommand(name);
             }
             else if (type.IsDefined(multipleCmdAttributeType) == true)
             {
                 var attr = type.GetCustomAttribute(multipleCmdAttributeType) as MultipleCmdAttribute;
                 foreach (var name in attr.Names)
                 {
-                    _serviceProvider.AddTransient(name, type);
-                    cmdToMap.Add(name);
+                    _commandContainer.RegisterType(name, type, Dignus.DependencyInjection.LifeScope.Transient);
+                    cmdToMap.AddCommand(name);
                 }
             }
             else
             {
                 var name = type.Name;
-                cmdToMap.Add(name);
-                _serviceProvider.AddTransient(name, type);
+                cmdToMap.AddCommand(name);
+                _commandContainer.RegisterType(name, type, Dignus.DependencyInjection.LifeScope.Transient);
             }
         }
         public void AddProcessorType<T>() where T : class, ICmdProcessor
         {
             AddProcessorType(typeof(T));
-        }
-        public T GetService<T>(string typeName) where T : class
-        {
-            return _serviceProvider.GetService<T>(typeName);
-        }
-        public T GetService<T>() where T : class
-        {
-            return _serviceProvider.GetService<T>();
         }
     }
 }

@@ -30,7 +30,6 @@ namespace CommandSystem.Net
 
         private InternalServer _server;
         private readonly ServerCmdModule _cmdModule;
-
         public ServerModule(ServerCmdModule cmdModule)
         {
             ProtocolToHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
@@ -39,13 +38,13 @@ namespace CommandSystem.Net
         }
         public void Run(int port, Builder builder)
         {
-            Configuration configuration = builder.GetService<Configuration>();
+            Configuration configuration = builder._commandContainer.Resolve<Configuration>();
 
             _server = new InternalServer(configuration.ModuleName,
                 new SessionCreator(MakeSerializersFunc));
 
             _server.Start(port);
-            LogHelper.Info($"*** cli server start : port {port} ***");
+            LogHelper.Info($"*** command server start : port {port} ***");
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {

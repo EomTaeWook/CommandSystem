@@ -36,18 +36,19 @@ namespace CommandSystem.Net
         }
 
         readonly InternalClient _client;
-        readonly ClientCmdModule _netClienModule;
+        readonly ClientCmdModule _clientModule;
         private string _ip;
         private int _port;
         public ClientModule(ClientCmdModule netClientModule)
         {
-            _netClienModule = netClientModule;
+            _clientModule = netClientModule;
             ProtocolToHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
 
-            _client = new InternalClient(new SessionCreator(MakeSerializersFunc), () =>
-            {
-                var _ = ReconnectAsync();
-            });
+            _client = new InternalClient(new SessionCreator(MakeSerializersFunc),
+                () =>
+                {
+                    var _ = ReconnectAsync();
+                });
         }
 
         private async Task ReconnectAsync()
@@ -58,10 +59,6 @@ namespace CommandSystem.Net
             if (_client.IsConnect == false)
             {
                 _ = ReconnectAsync();
-            }
-            else
-            {
-                //_netClienModule.Prompt();
             }
         }
 
@@ -80,13 +77,11 @@ namespace CommandSystem.Net
         }
         public void CacelCommand()
         {
-            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand()
-            {
-            }));
+            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand()));
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {
-            var handler = new SCProtocolHandler(_netClienModule);
+            var handler = new SCProtocolHandler(_clientModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,

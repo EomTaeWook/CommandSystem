@@ -10,7 +10,7 @@ using System.Diagnostics;
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
-var module = new LocalCmdModule();
+var module = new ServerCmdModule(50000);
 
 module.AddCmdProcessor<Close>();
 
@@ -23,16 +23,15 @@ Task.Run(() =>
     module.Run();
 });
 
-
 while (true)
 {
-    Thread.Sleep(33);
+    await Task.Delay(33);
 }
 
 async Task TestAsync(string[] args, CancellationToken cancellationToken)
 {
     var count = 0;
-    while(cancellationToken.IsCancellationRequested == false)
+    while (cancellationToken.IsCancellationRequested == false)
     {
         Console.WriteLine($"sleep : {count++}");
         await Task.Delay(1000, cancellationToken);

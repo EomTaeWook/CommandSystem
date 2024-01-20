@@ -15,7 +15,7 @@ namespace CommandSystem
         }
         private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
-            if(_cancellationToken == null)
+            if (_cancellationToken == null)
             {
                 Process.GetCurrentProcess().Kill();
             }
@@ -30,18 +30,18 @@ namespace CommandSystem
         {
             _cancellationToken.Cancel();
         }
-        
+
         protected override void RunCommand(string line)
         {
-            if(_cancellationToken != null)
+            if (_cancellationToken != null)
             {
                 LogHelper.Error("the command is currently in progress");
                 return;
             }
             _cancellationToken = new CancellationTokenSource();
             RunCommand(line, false, _cancellationToken.Token).GetAwaiter().GetResult();
-            
-            Task.Run(() => 
+
+            Task.Run(() =>
             {
                 _cancellationToken.Dispose();
                 _cancellationToken = null;
@@ -56,7 +56,7 @@ namespace CommandSystem
 
         private async Task LocalCommandAsync(string command, string[] options, bool isAlias, CancellationToken cancellationToken)
         {
-            var aliasTable = _builder.GetService<AliasTable>();
+            var aliasTable = _builder._commandContainer.Resolve<AliasTable>();
             if (aliasTable.Alias.ContainsKey(command) == true && isAlias == false)
             {
                 var sb = new StringBuilder();
@@ -68,34 +68,33 @@ namespace CommandSystem
             ICmdProcessor cmdProcessor;
             try
             {
-                cmdProcessor = _builder.GetService<ICmdProcessor>(command);
+                cmdProcessor = _builder._commandContainer.Resolve<ICmdProcessor>(command);
             }
             catch
             {
                 LogHelper.Error($"not found command : {command}");
                 return;
             }
-
             try
             {
-                var task = Task.Run(async () => 
+                var task = Task.Run(async () =>
                 {
                     try
                     {
                         await cmdProcessor.InvokeAsync(options, cancellationToken);
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         throw;
                     }
                 }, cancellationToken);
                 await task.WaitAsync(cancellationToken);
             }
-            catch(OperationCanceledException operationCanceledException)
+            catch (OperationCanceledException operationCanceledException)
             {
                 LogHelper.Error($"failed to command : {operationCanceledException.Message}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogHelper.Error($"failed to command : {ex.Message}");
             }

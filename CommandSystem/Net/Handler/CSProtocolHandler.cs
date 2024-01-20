@@ -1,6 +1,7 @@
 ﻿using CommandSystem.Models;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
+using Dignus.DependencyInjection.Attribute;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Attribute;
@@ -9,6 +10,7 @@ using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
 {
+    [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     public class CSProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
         private readonly ServerCmdModule _cmdServerModule;
@@ -19,6 +21,7 @@ namespace CommandSystem.Net.Handler
         public Session Session { get; private set; }
         public void Dispose()
         {
+            Session = null;
         }
 
         public void SetSession(Session session)
@@ -36,7 +39,6 @@ namespace CommandSystem.Net.Handler
             _cmdServerModule.CacelCommand();
         }
 
-
         [ProtocolName("RemoteCommand")]
         public async Task ProcessAsync(RemoteCommand remoteCommand)
         {
@@ -52,7 +54,6 @@ namespace CommandSystem.Net.Handler
                     });
                     Session.Send(packet);
                 }
-
                 return;
             }
             else
@@ -64,16 +65,14 @@ namespace CommandSystem.Net.Handler
                         Ok = true,
                         Body = body
                     });
-
                 Session.Send(packet);
-
             }
         }
 
         [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {
-            var config = _cmdServerModule._builder.GetService<Configuration>();
+            var config = _cmdServerModule._builder._commandContainer.Resolve<Configuration>();
             var item = new GetModuleInfoResponse()
             {
                 ModuleName = config.ModuleName

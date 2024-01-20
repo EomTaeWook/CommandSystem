@@ -15,20 +15,19 @@ namespace CommandSystem
         }
         public void CacelCommand()
         {
-            if(_cancellationToken != null)
+            if (_cancellationToken != null)
             {
                 _cancellationToken.Cancel();
             }
         }
         public async Task<string> ProcessCommandAsync(string line)
         {
-            
             if (string.IsNullOrEmpty(line) == true)
             {
                 LogHelper.Error("command is empty");
                 return "command is empty";
             }
-            if(_cancellationToken!= null)
+            if (_cancellationToken != null)
             {
                 LogHelper.Error("the command is currently in progress");
                 return "the command is currently in progress";

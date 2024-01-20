@@ -14,10 +14,8 @@ namespace TestConsole
             LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
             LogBuilder.Build();
 
-            var client = new CmdClientModule("127.0.0.1", 50000);
-
+            var client = new ClientCmdModule("127.0.0.1", 50000);
             client.Build();
-
             client.Run();
 
 

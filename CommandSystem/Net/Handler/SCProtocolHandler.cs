@@ -1,5 +1,6 @@
 ﻿using CommandSystem.Models;
 using CommandSystem.Net.Protocol.Models;
+using Dignus.DependencyInjection.Attribute;
 using Dignus.Sockets;
 using Dignus.Sockets.Attribute;
 using Dignus.Sockets.Interface;
@@ -7,6 +8,7 @@ using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
 {
+    [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     public partial class SCProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
         public Session Session { get; private set; }
@@ -19,7 +21,7 @@ namespace CommandSystem.Net.Handler
 
         public void Dispose()
         {
-
+            Session = null;
         }
         [ProtocolName("RemoteCommandResponse")]
         public void Process(RemoteCommandResponse res)
@@ -31,8 +33,7 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("GetModuleInfoResponse")]
         public void GetModuleInfoResponse(GetModuleInfoResponse res)
         {
-            var config = _cliModule._builder.GetService<Configuration>();
-
+            var config = _cliModule._builder._commandContainer.Resolve<Configuration>();
             config.ModuleName = res.ModuleName;
         }
         [ProtocolName("CancelCommandResponse")]

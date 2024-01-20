@@ -1,6 +1,5 @@
 ﻿using CommandSystem.Net;
 using Dignus.Log;
-using System.Diagnostics;
 
 namespace CommandSystem
 {
@@ -47,7 +46,7 @@ namespace CommandSystem
             {
                 _clientModule.Run(_ip, _port);
 
-                LogHelper.Info($"*** cli client module start ***");
+                LogHelper.Info($"*** command client module start ***");
                 Prompt();
             });
         }

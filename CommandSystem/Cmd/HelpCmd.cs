@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Attribude;
 using CommandSystem.Interface;
+using CommandSystem.Internal;
 using CommandSystem.Models;
-using Dignus.DependencyInjection;
 using System.Text;
 
 namespace CommandSystem.Cmd
@@ -9,23 +9,23 @@ namespace CommandSystem.Cmd
     [MultipleCmd("help", "?", "h")]
     internal class HelpCmd : ICmdProcessor
     {
-        private readonly HashSet<string> _cmdToMap;
+        private readonly CommandTable _commandTable;
         private readonly AliasTable _aliasTable;
-        private readonly ServiceProvider _serviceProvider;
-        public HelpCmd(AliasTable aliasTable, HashSet<string> cmdToMap, ServiceProvider serviceProvider)
+        private readonly CommandServiceContainer _commandContainer;
+        public HelpCmd(AliasTable aliasTable, CommandTable commandTable, CommandServiceContainer commandContainer)
         {
             _aliasTable = aliasTable;
-            _cmdToMap = cmdToMap;
-            _serviceProvider = serviceProvider;
+            _commandTable = commandTable;
+            _commandContainer = commandContainer;
         }
 
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
 
-            foreach (var name in _cmdToMap)
+            foreach (var name in _commandTable.GetCommandList())
             {
-                var cmd = _serviceProvider.GetService<ICmdProcessor>(name);
+                var cmd = _commandContainer.Resolve<ICmdProcessor>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             foreach (var item in _aliasTable.GetDatas())

@@ -12,6 +12,7 @@ namespace CommandSystem.Cmd
         private readonly CommandTable _commandTable;
         private readonly AliasTable _aliasTable;
         private readonly CommandServiceContainer _commandContainer;
+
         public HelpCmd(AliasTable aliasTable, CommandTable commandTable, CommandServiceContainer commandContainer)
         {
             _aliasTable = aliasTable;

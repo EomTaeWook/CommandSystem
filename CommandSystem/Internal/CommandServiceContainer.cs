@@ -6,11 +6,7 @@ namespace CommandSystem.Internal
     internal class CommandServiceContainer
     {
         private CommandProvider _serviceProvider;
-
-        private CommandServiceCollection _commandServiceCollection = new();
-        public CommandServiceContainer()
-        {
-        }
+        private readonly CommandServiceCollection _commandServiceCollection = new();
         public IServiceProvider Build()
         {
             var serviceProvider = _commandServiceCollection.BuildServiceProvider();

@@ -77,18 +77,7 @@ namespace CommandSystem
             }
             try
             {
-                var task = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await cmdProcessor.InvokeAsync(options, cancellationToken);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                }, cancellationToken);
-                await task.WaitAsync(cancellationToken);
+                await cmdProcessor.InvokeAsync(options, cancellationToken);
             }
             catch (OperationCanceledException operationCanceledException)
             {

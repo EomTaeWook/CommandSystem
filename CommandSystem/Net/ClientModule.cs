@@ -39,9 +39,9 @@ namespace CommandSystem.Net
         readonly ClientCmdModule _clientModule;
         private string _ip;
         private int _port;
-        public ClientModule(ClientCmdModule netClientModule)
+        public ClientModule(ClientCmdModule clientModule)
         {
-            _clientModule = netClientModule;
+            _clientModule = clientModule;
             ProtocolToHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
 
             _client = new InternalClient(new SessionCreator(MakeSerializersFunc),

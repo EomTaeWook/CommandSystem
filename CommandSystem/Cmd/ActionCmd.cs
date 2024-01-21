@@ -11,7 +11,6 @@ namespace CommandSystem.Cmd
             _desc = desc;
             _func = func;
         }
-
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             return _func.Invoke(args, cancellationToken);

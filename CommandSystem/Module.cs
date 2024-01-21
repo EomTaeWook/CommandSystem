@@ -8,9 +8,8 @@ namespace CommandSystem
     public abstract class Module
     {
         internal Builder _builder = new();
-
-        private bool _isBuild = false;
-        private readonly Configuration _configuration = new();
+        private Configuration _configuration = new();
+        private bool _isBuilt = false;
         protected abstract void RunCommand(string line);
 
         public abstract void Run();
@@ -24,31 +23,32 @@ namespace CommandSystem
             _configuration.ModuleName = moduleName;
         }
 
-        public void AddCmdProcessor<T>(T processor) where T : class, ICmdProcessor
+        public void AddCmdProcessor<T>(T processor, bool isLocalCommand = false) where T : class, ICmdProcessor
         {
-            _builder.AddProcessorType(processor);
+            _builder.AddProcessorType(processor, isLocalCommand);
         }
         public void AddCmdProcessor<T>() where T : class, ICmdProcessor
         {
             _builder.AddProcessorType<T>();
         }
-        public void AddCmdProcessor(string command, string desc, Func<string[], CancellationToken, Task> action)
+        public void AddCmdProcessor(string command, string desc, Func<string[], CancellationToken, Task> action, bool isLocalCommand = false)
         {
-            _builder.AddProcessorType(command, new ActionCmd(action, desc));
+            _builder.AddProcessorType(command, new ActionCmd(action, desc), isLocalCommand);
         }
         public void Build(Configuration configuration = null)
         {
-            if (_isBuild == true)
+            if (_isBuilt == true)
             {
-                throw new InvalidOperationException("already build cli module");
+                throw new InvalidOperationException("command module has already been built.");
             }
-            _isBuild = true;
+            _isBuilt = true;
 
-            if (configuration == null)
+            if (configuration != null)
             {
-                configuration = _configuration;
+                _configuration = configuration;
             }
-            _builder.Build(configuration);
+
+            _builder.Build(_configuration);
         }
         public void Prompt()
         {

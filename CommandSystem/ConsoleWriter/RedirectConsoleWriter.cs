@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace CommandSystem.ConsoleWriter
 {
@@ -8,7 +7,7 @@ namespace CommandSystem.ConsoleWriter
         public override Encoding Encoding => Encoding.UTF8;
 
         readonly TextWriter _oldWriter;
-        readonly StringBuilder sb = new StringBuilder();
+        readonly StringBuilder sb = new();
         public RedirectConsoleWriter()
         {
             _oldWriter = Console.Out;

@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CommandSystem;
-using CommandSystem.Attribude;
+using CommandSystem.Attribute;
 using CommandSystem.Interface;
 using Dignus.Extensions.Log;
 using Dignus.Log;
@@ -39,7 +39,7 @@ async Task TestAsync(string[] args, CancellationToken cancellationToken)
     Console.WriteLine($"end sleep : {count++}");
 }
 
-[CmdAttribute("close")]
+[Cmd("close")]
 internal class Close : ICmdProcessor
 {
     public Task InvokeAsync(string[] args, CancellationToken cancellationToken)

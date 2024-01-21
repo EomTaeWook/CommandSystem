@@ -1,4 +1,4 @@
-﻿using CommandSystem.Attribude;
+﻿using CommandSystem.Attribute;
 using CommandSystem.Interface;
 using System.Diagnostics;
 

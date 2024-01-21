@@ -1,11 +1,11 @@
-﻿namespace CommandSystem.Attribude
+﻿namespace CommandSystem.Attribute
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class CmdAttribute : Attribute
+    public class LocalCmdAttribute : System.Attribute
     {
         public string Name { get; private set; }
 
-        public CmdAttribute(string name)
+        public LocalCmdAttribute(string name)
         {
             Name = name;
         }

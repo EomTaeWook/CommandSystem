@@ -1,5 +1,5 @@
 ﻿using CommandSystem;
-using CommandSystem.Attribude;
+using CommandSystem.Attribute;
 using CommandSystem.Interface;
 using Dignus.Extensions.Log;
 using Dignus.Log;

@@ -1,7 +1,7 @@
-﻿namespace CommandSystem.Attribude
+﻿namespace CommandSystem.Attribute
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class MultipleCmdAttribute : Attribute
+    public class MultipleCmdAttribute : System.Attribute
     {
         public List<string> Names { get; private set; }
 

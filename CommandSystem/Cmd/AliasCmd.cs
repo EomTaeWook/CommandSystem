@@ -1,4 +1,4 @@
-﻿using CommandSystem.Attribude;
+﻿using CommandSystem.Attribute;
 using CommandSystem.Interface;
 using CommandSystem.Models;
 using System.Text;
@@ -31,12 +31,12 @@ namespace CommandSystem.Cmd
                 var aliasCmd = args[0];
                 var cmd = string.Join(' ', args, 1, args.Length - 1);
 
-                if(aliasCmd.Equals(cmd) == true)
+                if (aliasCmd.Equals(cmd) == true)
                 {
                     throw new Exception($"the alias and command are the same.");
                 }
 
-                if(string.IsNullOrEmpty(cmd))
+                if (string.IsNullOrEmpty(cmd))
                 {
                     throw new Exception($"command is empty!");
                 }

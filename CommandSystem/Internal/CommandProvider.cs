@@ -1,55 +1,21 @@
-﻿using Dignus.Collections;
-using Dignus.DependencyInjection;
-
-namespace CommandSystem.Internal
+﻿namespace CommandSystem.Internal
 {
-    internal class CommandProvider : ServiceProvider
+    internal class CommandProvider
     {
+        private readonly Dictionary<string, object> _typeNameToSingletonMap = new();
         private readonly Dictionary<string, Type> _typeNameToTypeMapping = new();
-        private readonly Dictionary<string, object> _singletonObjects = new();
-        private readonly UniqueSet<Type> _registeredTypeSet = new UniqueSet<Type>();
 
-        public void AddTransient(string typeName, Type implementationType)
+        private readonly IServiceProvider _serviceProvider;
+        public CommandProvider(IServiceProvider serviceProvider, CommandServiceCollection serviceRegistrations)
         {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                throw new ArgumentException("service type name cannot be null or empty.", implementationType.Name);
-            }
-            _typeNameToTypeMapping.Add(typeName, implementationType);
-            if (_registeredTypeSet.Contains(implementationType))
-            {
-                return;
-            }
-            _registeredTypeSet.Add(implementationType);
-            base.AddTransient(implementationType, implementationType);
+            _serviceProvider = serviceProvider;
+            _typeNameToTypeMapping = serviceRegistrations._typeNameToTypeMapping;
+            _typeNameToSingletonMap = serviceRegistrations._typeNameToSingletonMap;
         }
-        public void AddSingleton(string typeName, Type implementationType)
-        {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                throw new ArgumentException("service type name cannot be null or empty.", implementationType.Name);
-            }
-            _typeNameToTypeMapping.Add(typeName, implementationType);
-            if (_registeredTypeSet.Contains(implementationType))
-            {
-                return;
-            }
-            _registeredTypeSet.Add(implementationType);
-            base.AddSingleton(implementationType, implementationType);
-        }
-        public void AddSingleton<TService>(string typeName, TService implementation)
-        {
-            var type = typeof(TService);
-            if (string.IsNullOrEmpty(typeName))
-            {
-                throw new ArgumentException("service type name cannot be null or empty.", type.Name);
-            }
-            _typeNameToTypeMapping.Add(typeName, type);
-            _singletonObjects.Add(typeName, implementation);
-        }
+
         public T GetService<T>(string typeName)
         {
-            if (_singletonObjects.TryGetValue(typeName, out object value))
+            if (_typeNameToSingletonMap.TryGetValue(typeName, out object value))
             {
                 return (T)value;
             }
@@ -59,7 +25,11 @@ namespace CommandSystem.Internal
                 throw new Exception("the registered resolve type could not be found. " + typeName);
             }
 
-            return (T)this.GetService(type);
+            return (T)_serviceProvider.GetService(type);
+        }
+        public T GetService<T>()
+        {
+            return (T)_serviceProvider.GetService(typeof(T));
         }
     }
 }

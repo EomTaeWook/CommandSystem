@@ -1,9 +1,9 @@
-﻿using CommandSystem.Attribude;
+﻿using CommandSystem.Attribute;
 using CommandSystem.Interface;
 
 namespace CommandSystem.Cmd
 {
-    [Cmd("clr")]
+    [LocalCmd("clr")]
     internal class ConsoleClearCmd : ICmdProcessor
     {
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)

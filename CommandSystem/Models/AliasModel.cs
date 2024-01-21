@@ -15,9 +15,6 @@
 
         readonly Dictionary<string, AliasModel> _aliasMap = new();
 
-        public AliasTable()
-        {
-        }
         public AliasTable(ICollection<AliasModel> aliasModels)
         {
             foreach (var item in aliasModels)

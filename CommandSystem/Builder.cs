@@ -35,7 +35,7 @@ namespace CommandSystem
             }
             else
             {
-                _commandContainer.RegisterType(new AliasTable());
+                _commandContainer.RegisterType(new AliasTable(new List<AliasModel>()));
             }
             _commandContainer.RegisterType(configuration);
             _commandContainer.Build();

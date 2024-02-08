@@ -12,19 +12,15 @@ namespace CommandSystem.Net
     {
         internal class InternalServer : ServerBase
         {
-            private readonly string _moduleName;
-            public InternalServer(string moduleName, SessionCreator sessionCreator) : base(sessionCreator)
+            public InternalServer(SessionCreator sessionCreator) : base(sessionCreator)
             {
-                _moduleName = moduleName;
             }
             protected override void OnAccepted(Session session)
             {
-                //LogHelper.Debug($"[{_moduleName}] connect session");
             }
 
             protected override void OnDisconnected(Session session)
             {
-                //LogHelper.Debug($"[{_moduleName}] disconnect session");
             }
         }
 
@@ -40,15 +36,13 @@ namespace CommandSystem.Net
         {
             Configuration configuration = builder._commandContainer.Resolve<Configuration>();
 
-            _server = new InternalServer(configuration.ModuleName,
-                new SessionCreator(MakeSerializersFunc));
-
+            _server = new InternalServer(new SessionCreator(MakeSerializersFunc));
             _server.Start(port);
             LogHelper.Info($"*** command server start : port {port} ***");
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {
-            CSProtocolHandler handler = new CSProtocolHandler(_cmdModule);
+            CSProtocolHandler handler = new(_cmdModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,

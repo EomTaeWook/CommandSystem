@@ -14,6 +14,7 @@ namespace CommandSystem.Net.Handler
         public Session Session { get; private set; }
 
         readonly ClientCmdModule _cliModule;
+
         public SCProtocolHandler(ClientCmdModule cliModule)
         {
             _cliModule = cliModule;
@@ -26,9 +27,16 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("RemoteCommandResponse")]
         public void Process(RemoteCommandResponse res)
         {
-            Console.WriteLine(res.Body);
-            _cliModule.IsRequested = false;
-            Task.Run(_cliModule.Prompt);
+            if (res.Ok == false)
+            {
+                Console.WriteLine(res.ErrorMessage);
+                _cliModule.JobId = -1;
+                Task.Run(_cliModule.DisplayPrompt);
+            }
+            else
+            {
+                _cliModule.JobId = res.JobId;
+            }
         }
         [ProtocolName("GetModuleInfoResponse")]
         public void GetModuleInfoResponse(GetModuleInfoResponse res)
@@ -39,8 +47,20 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("CancelCommandResponse")]
         public void Process(CancelCommandResponse res)
         {
-            _cliModule.IsRequested = false;
-            _cliModule.Prompt();
+            _cliModule.JobId = -1;
+            _cliModule.DisplayPrompt();
+        }
+        [ProtocolName("NotifyConsoleText")]
+        public void Process(NotifyConsoleText notifyConsoleText)
+        {
+            Console.Write(notifyConsoleText.ConsoleText);
+        }
+        [ProtocolName("CompleteRemoteCommand")]
+        public void Process(CompleteRemoteCommand completeRemoteCommand)
+        {
+            _cliModule.JobId = -1;
+            Console.WriteLine(completeRemoteCommand.ConsoleText);
+            Task.Run(_cliModule.DisplayPrompt);
         }
         public void SetSession(Session session)
         {

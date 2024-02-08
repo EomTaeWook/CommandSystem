@@ -13,7 +13,6 @@ namespace CommandSystem
         protected abstract void RunCommand(string line);
 
         public abstract void Run();
-
         public Module(string moduleName = null)
         {
             if (string.IsNullOrEmpty(moduleName) == true)
@@ -50,17 +49,22 @@ namespace CommandSystem
 
             _builder.Build(_configuration);
         }
-        public void Prompt()
+        public void DisplayPrompt()
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"{_configuration.ModuleName} > ");
             var line = Console.ReadLine();
-            if (string.IsNullOrEmpty(line))
+            if (string.IsNullOrEmpty(line.Trim()))
             {
-                Task.Run(Prompt);
+                _ = Task.Run(DisplayPrompt);
                 return;
             }
             RunCommand(line);
+        }
+        public void DisplayPromptOnly()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"{_configuration.ModuleName} > ");
         }
     }
 }

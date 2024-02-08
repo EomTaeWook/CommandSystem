@@ -5,7 +5,8 @@
         GetModuleInfoResponse,
         RemoteCommandResponse,
         CancelCommandResponse,
-
+        NotifyConsoleText,
+        CompleteRemoteCommand,
         Max
     }
 }

@@ -14,6 +14,7 @@ namespace CommandSystem.Net.Handler
     public class CSProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
         private readonly ServerCmdModule _cmdServerModule;
+
         public CSProtocolHandler(ServerCmdModule cmdServerModule)
         {
             _cmdServerModule = cmdServerModule;
@@ -36,37 +37,41 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("CancelCommand")]
         public void Process(CancelCommand cancelCommand)
         {
-            _cmdServerModule.CacelCommand();
+            _cmdServerModule.CacelCommand(cancelCommand.JobId);
         }
 
         [ProtocolName("RemoteCommand")]
-        public async Task ProcessAsync(RemoteCommand remoteCommand)
+        public void Process(RemoteCommand remoteCommand)
         {
+            Packet packet;
             if (string.IsNullOrEmpty(remoteCommand.Cmd) == true)
             {
                 LogHelper.Error($"command is empty");
-                {
-                    var packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
+
+                packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
                     new RemoteCommandResponse()
                     {
                         Ok = false,
-                        Body = "command is empty!"
-                    });
-                    Session.Send(packet);
-                }
-                return;
-            }
-            else
-            {
-                var body = await _cmdServerModule.ProcessCommandAsync(remoteCommand.Cmd);
-                Packet packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
-                    new RemoteCommandResponse()
-                    {
-                        Ok = true,
-                        Body = body
+                        ErrorMessage = "command is empty!"
                     });
                 Session.Send(packet);
+
+                return;
             }
+
+            var jobId = _cmdServerModule.JobManager.AddJob(remoteCommand.Cmd, Session);
+
+            packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
+                new RemoteCommandResponse()
+                {
+                    Ok = true,
+                    JobId = jobId
+                });
+            Session.Send(packet);
+
+
+            //var body = await _cmdServerModule.ProcessCommandAsync(remoteCommand.Cmd);
+
         }
 
         [ProtocolName("GetModuleInfo")]

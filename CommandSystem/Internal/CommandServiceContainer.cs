@@ -1,17 +1,18 @@
 ﻿using Dignus.DependencyInjection;
 using Dignus.DependencyInjection.Extensions;
+using Dignus.DependencyInjection.Interface;
 
 namespace CommandSystem.Internal
 {
-    internal class CommandServiceContainer
+    internal class CommandServiceContainer : IServiceContainer
     {
         private CommandProvider _serviceProvider;
         private readonly CommandServiceCollection _commandServiceCollection = new();
+
         public IServiceProvider Build()
         {
             var serviceProvider = _commandServiceCollection.BuildServiceProvider();
             _serviceProvider = new CommandProvider(serviceProvider, _commandServiceCollection);
-
             return serviceProvider;
         }
         public void RegisterType(string typeName, Type implementationType, LifeScope lifeScope)
@@ -40,6 +41,23 @@ namespace CommandSystem.Internal
         public T Resolve<T>(string typeName)
         {
             return _serviceProvider.GetService<T>(typeName);
+        }
+
+        public void RegisterType(Type serviceType, Type implementationType, LifeScope lifeScope)
+        {
+            if (lifeScope == LifeScope.Transient)
+            {
+                _commandServiceCollection.AddTransient(serviceType, implementationType);
+            }
+            else
+            {
+                _commandServiceCollection.AddSingleton(serviceType, implementationType);
+            }
+        }
+
+        object IServiceContainer.Resolve(Type type)
+        {
+            return _serviceProvider.GetService(type);
         }
     }
 }

@@ -1,45 +1,44 @@
-﻿using CommandSystem.ConsoleWriter;
+﻿using CommandSystem.Internal;
 using CommandSystem.Net;
-using Dignus.Log;
 
 namespace CommandSystem
 {
-    public class ServerCmdModule : LocalCmdModule
+    public sealed class ServerCmdModule : LocalCmdModule
     {
         private readonly ServerModule _serverModule;
         private readonly int _port;
+        private JobManager _jobManager;
+
+        internal JobManager JobManager => _jobManager;
         public ServerCmdModule(int port, string moduleName = null) : base(moduleName)
         {
             _serverModule = new ServerModule(this);
             _port = port;
+            _jobManager = new JobManager();
         }
-        public void CacelCommand()
+        public void CacelCommand(int jobId)
         {
-            if (_cancellationToken != null)
-            {
-                _cancellationToken.Cancel();
-            }
+            _jobManager.RemoveJob(jobId);
         }
-        public async Task<string> ProcessCommandAsync(string line)
+
+        public async Task ProcessCommandAsync()
         {
-            if (string.IsNullOrEmpty(line) == true)
+            while (true)
             {
-                LogHelper.Error("command is empty");
-                return "command is empty";
+                var jobTask = _jobManager.DequeueNextJob();
+                if (jobTask == null)
+                {
+                    await Task.Delay(100);
+                    continue;
+                }
+                Console.WriteLine();
+                await RunCommand(jobTask.CommandLine,
+                    false,
+                    jobTask.CancellationTokenSource.Token);
+
+                _jobManager.CompleteJob();
+                DisplayPromptOnly();
             }
-            if (_cancellationToken != null)
-            {
-                LogHelper.Error("the command is currently in progress");
-                return "the command is currently in progress";
-            }
-            var console = new RedirectConsoleWriter();
-            _cancellationToken = new CancellationTokenSource();
-            await RunCommand(line, false, _cancellationToken.Token);
-            _cancellationToken.Dispose();
-            _cancellationToken = null;
-            var body = console.Release();
-            var _ = Task.Run(Prompt);
-            return body;
         }
         public override void Run()
         {
@@ -49,7 +48,9 @@ namespace CommandSystem
         {
             return Task.Run(() =>
             {
+                _jobManager.Start();
                 _serverModule.Run(_port, _builder);
+                _ = ProcessCommandAsync();
                 base.Run();
             });
         }

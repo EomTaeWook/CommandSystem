@@ -45,7 +45,7 @@ namespace CommandSystem
             {
                 _cancellationToken.Dispose();
                 _cancellationToken = null;
-                Prompt();
+                DisplayPrompt();
             });
         }
         protected Task RunCommand(string line, bool isAlias, CancellationToken cancellationToken)
@@ -92,7 +92,7 @@ namespace CommandSystem
         public override void Run()
         {
             LogHelper.Info($"*** local module start ***");
-            Prompt();
+            DisplayPrompt();
         }
     }
 }

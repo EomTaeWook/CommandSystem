@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using Dignus.DependencyInjection.Attribute;
+using System.Text;
 
 namespace CommandSystem.ConsoleWriter
 {
+    [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     public class RedirectConsoleWriter : TextWriter
     {
         public override Encoding Encoding => Encoding.UTF8;
@@ -30,7 +32,9 @@ namespace CommandSystem.ConsoleWriter
         }
         public string Release()
         {
-            return sb.ToString();
+            var text = sb.ToString();
+            sb.Clear();
+            return text;
         }
     }
 }

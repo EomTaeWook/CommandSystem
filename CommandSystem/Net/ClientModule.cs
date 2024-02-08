@@ -75,9 +75,9 @@ namespace CommandSystem.Net
                 Cmd = line
             }));
         }
-        public void CacelCommand()
+        public void CacelCommand(int jobId)
         {
-            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand()));
+            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
         {

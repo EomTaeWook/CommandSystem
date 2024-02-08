@@ -29,7 +29,11 @@
         }
         public T GetService<T>()
         {
-            return (T)_serviceProvider.GetService(typeof(T));
+            return (T)GetService(typeof(T));
+        }
+        public object GetService(Type type)
+        {
+            return _serviceProvider.GetService(type);
         }
     }
 }

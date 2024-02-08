@@ -36,7 +36,6 @@ namespace CommandSystem.Internal
             }
             _registeredTypeSet.Add(implementationType);
             base.Add(new ServiceRegistration(implementationType, implementationType, LifeScope.Singleton));
-
         }
         public void AddSingleton<TService>(string typeName, TService instance)
         {

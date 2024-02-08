@@ -3,6 +3,7 @@ using CommandSystem.Interface;
 using CommandSystem.Internal;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
+using Dignus.DependencyInjection.Extensions;
 using System.Reflection;
 using System.Text.Json;
 
@@ -21,6 +22,8 @@ namespace CommandSystem
         public void Build(Configuration configuration)
         {
             var assembly = Assembly.GetCallingAssembly();
+            _commandContainer.RegisterDependencies(assembly);
+
             foreach (var item in assembly.GetTypes())
             {
                 if (item.GetCustomAttribute<CmdAttribute>() != null || item.GetCustomAttribute<MultipleCmdAttribute>() != null || item.GetCustomAttribute<LocalCmdAttribute>() != null)

@@ -24,7 +24,7 @@ serverModule.Build();
 serverModule.Run();
 ```
 
-# Client Commnad Module
+# Client Command Module
 
 ```C#
 var client = new ClientCmdModule("127.0.0.1", 50000);
@@ -34,7 +34,7 @@ client.Build();
 client.Run();
 ```
 
-# Local Commnad Module
+# Local Command Module
 
 ```C#
 var local = new LocalCmdModule();

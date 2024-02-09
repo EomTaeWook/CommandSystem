@@ -12,9 +12,9 @@ LogBuilder.Build();
 
 var module = new ServerCmdModule(50000);
 
-module.AddCmdProcessor<Close>();
+module.AddCommandAction<Close>();
 
-module.AddCmdProcessor("l", "loop desc", TestAsync);
+module.AddCommandAction("l", "loop desc", TestAsync);
 
 module.Build();
 
@@ -40,7 +40,7 @@ async Task TestAsync(string[] args, CancellationToken cancellationToken)
 }
 
 [Cmd("close")]
-internal class Close : ICmdProcessor
+internal class Close : ICommandAction
 {
     public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
     {

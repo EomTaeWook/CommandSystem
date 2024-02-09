@@ -1,22 +1,25 @@
-﻿using CommandSystem.Internal;
+﻿using CommandSystem.Extensions;
+using CommandSystem.Internal;
 using CommandSystem.Net;
 
 namespace CommandSystem
 {
-    public sealed class ServerCmdModule : LocalCmdModule
+    public sealed class ServerCmdModule : CommandProcessor
     {
         private readonly ServerModule _serverModule;
         private readonly int _port;
         private JobManager _jobManager;
-
+        private LocalCmdModule _localCmdModule;
         internal JobManager JobManager => _jobManager;
-        public ServerCmdModule(int port, string moduleName = null) : base(moduleName)
+
+        public ServerCmdModule(int port, string moduleName = null)
         {
             _serverModule = new ServerModule(this);
             _port = port;
             _jobManager = new JobManager();
+            _localCmdModule = new LocalCmdModule(moduleName, this._commandServiceContainer);
         }
-        public void CacelCommand(int jobId)
+        public void CancelCommand(int jobId)
         {
             _jobManager.RemoveJob(jobId);
         }
@@ -32,27 +35,32 @@ namespace CommandSystem
                     continue;
                 }
                 Console.WriteLine();
-                await RunCommand(jobTask.CommandLine,
+                await _localCmdModule.RunCommandAsync(jobTask.CommandLine,
                     false,
                     jobTask.CancellationTokenSource.Token);
 
                 _jobManager.CompleteJob();
-                DisplayPromptOnly();
+                _localCmdModule.DisplayPromptOnly();
             }
         }
-        public override void Run()
+        public void Run()
         {
-            RunAsync().GetAwaiter().GetResult();
+            this.RunAsync().GetAwaiter().GetResult();
         }
         public Task RunAsync()
         {
             return Task.Run(() =>
             {
                 _jobManager.Start();
-                _serverModule.Run(_port, _builder);
+                _serverModule.Run(_port);
                 _ = ProcessCommandAsync();
-                base.Run();
+                _localCmdModule.Run();
             });
+        }
+
+        public override void RunCommand(string line)
+        {
+            _localCmdModule.RunCommand(line);
         }
     }
 }

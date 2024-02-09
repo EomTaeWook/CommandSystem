@@ -36,7 +36,7 @@ namespace TestConsole
         }
 
         [Cmd("close")]
-        internal class Close : ICmdProcessor
+        internal class Close : ICommandAction
         {
             public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
             {

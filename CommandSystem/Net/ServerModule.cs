@@ -1,5 +1,4 @@
-﻿using CommandSystem.Models;
-using CommandSystem.Net.Handler;
+﻿using CommandSystem.Net.Handler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
 using Dignus.Log;
@@ -10,9 +9,9 @@ namespace CommandSystem.Net
 {
     internal class ServerModule
     {
-        internal class InternalServer : ServerBase
+        internal class InnerServer : ServerBase
         {
-            public InternalServer(SessionCreator sessionCreator) : base(sessionCreator)
+            public InnerServer(SessionCreator sessionCreator) : base(sessionCreator)
             {
             }
             protected override void OnAccepted(Session session)
@@ -24,19 +23,16 @@ namespace CommandSystem.Net
             }
         }
 
-        private InternalServer _server;
+        private InnerServer _server;
         private readonly ServerCmdModule _cmdModule;
         public ServerModule(ServerCmdModule cmdModule)
         {
             ProtocolToHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
-
             _cmdModule = cmdModule;
         }
-        public void Run(int port, Builder builder)
+        public void Run(int port)
         {
-            Configuration configuration = builder._commandContainer.Resolve<Configuration>();
-
-            _server = new InternalServer(new SessionCreator(MakeSerializersFunc));
+            _server = new InnerServer(new SessionCreator(MakeSerializersFunc));
             _server.Start(port);
             LogHelper.Info($"*** command server start : port {port} ***");
         }

@@ -1,11 +1,12 @@
-﻿using CommandSystem.Interface;
+﻿using CommandSystem.Extensions;
+using CommandSystem.Interface;
 using CommandSystem.Models;
 using CommandSystem.Net;
 using Dignus.Log;
 
 namespace CommandSystem
 {
-    public class ClientCmdModule : Module
+    public class ClientCmdModule : CommandProcessor
     {
         private readonly ClientModule _clientModule;
         private readonly string _ip;
@@ -38,14 +39,14 @@ namespace CommandSystem
         {
             if (isAlias == false)
             {
-                var table = _builder._commandContainer.Resolve<AliasTable>();
+                var table = _commandServiceContainer.Resolve<AliasTable>();
                 if (table.Alias.TryGetValue(command, out AliasModel alias) == true)
                 {
                     return await ProcessLocalCommandAsync(alias.Cmd, options, true, cancellationToken);
                 }
             }
 
-            var commandTable = _builder._commandContainer.Resolve<CommandTable>();
+            var commandTable = _commandServiceContainer.Resolve<CommandTable>();
 
             if (!commandTable.IsContainLocalCommand(command))
             {
@@ -53,7 +54,7 @@ namespace CommandSystem
             }
             try
             {
-                var cmdProcessor = _builder._commandContainer.Resolve<ICmdProcessor>(command);
+                var cmdProcessor = _commandServiceContainer.Resolve<ICommandAction>(command);
                 await cmdProcessor.InvokeAsync(options, cancellationToken);
                 return true;
             }
@@ -67,7 +68,7 @@ namespace CommandSystem
             }
             return false;
         }
-        protected override void RunCommand(string line)
+        public override void RunCommand(string line)
         {
             if (_localCancellationToken != null)
             {
@@ -85,15 +86,19 @@ namespace CommandSystem
 
             if (result == true)
             {
-                DisplayPrompt();
+                this.DisplayPrompt();
                 return;
             }
 
             _clientModule.SendCommand(line);
         }
-        public override void Run()
+        public void Run()
         {
             RunAsync().GetAwaiter().GetResult();
+        }
+        internal void SetModuleName(string moduleName)
+        {
+            _moduleName = moduleName;
         }
         private Task RunAsync()
         {
@@ -102,7 +107,7 @@ namespace CommandSystem
                 _clientModule.Run(_ip, _port);
 
                 LogHelper.Info($"*** command client module start ***");
-                DisplayPrompt();
+                this.DisplayPrompt();
             });
         }
     }

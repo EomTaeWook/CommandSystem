@@ -1,4 +1,6 @@
-﻿using CommandSystem.Interface;
+﻿using CommandSystem.Extensions;
+using CommandSystem.Interface;
+using CommandSystem.Internal;
 using CommandSystem.Models;
 using Dignus.Log;
 using System.Diagnostics;
@@ -6,10 +8,14 @@ using System.Text;
 
 namespace CommandSystem
 {
-    public class LocalCmdModule : Module
+    public class LocalCmdModule : CommandProcessor
     {
-        protected CancellationTokenSource _cancellationToken = null;
-        public LocalCmdModule(string moduleName = null) : base(moduleName)
+        private CancellationTokenSource _cancellationToken = null;
+        public LocalCmdModule(string moduleName = null) : this(moduleName, new CommandServiceContainer())
+        {
+
+        }
+        internal LocalCmdModule(string moduleName, CommandServiceContainer commandServiceContainer) : base(moduleName, commandServiceContainer)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
         }
@@ -30,8 +36,7 @@ namespace CommandSystem
         {
             _cancellationToken.Cancel();
         }
-
-        protected override void RunCommand(string line)
+        public override void RunCommand(string line)
         {
             if (_cancellationToken != null)
             {
@@ -39,36 +44,50 @@ namespace CommandSystem
                 return;
             }
             _cancellationToken = new CancellationTokenSource();
-            RunCommand(line, false, _cancellationToken.Token).GetAwaiter().GetResult();
-
+            RunCommandAsync(line, false, _cancellationToken.Token).GetAwaiter().GetResult();
+            _cancellationToken.Dispose();
+            _cancellationToken = null;
             Task.Run(() =>
             {
-                _cancellationToken.Dispose();
-                _cancellationToken = null;
-                DisplayPrompt();
+                this.DisplayPrompt();
             });
         }
-        protected Task RunCommand(string line, bool isAlias, CancellationToken cancellationToken)
+        public async Task RunCommandAsync(string line)
+        {
+            if (_cancellationToken != null)
+            {
+                LogHelper.Error("the command is currently in progress");
+                return;
+            }
+            _cancellationToken = new CancellationTokenSource();
+            await RunCommandAsync(line, false, _cancellationToken.Token);
+            _cancellationToken.Dispose();
+            _cancellationToken = null;
+            _ = Task.Run(() =>
+            {
+                this.DisplayPrompt();
+            });
+        }
+        public Task RunCommandAsync(string line, bool isAlias, CancellationToken cancellationToken)
         {
             var splits = line.Split(" ");
             return LocalCommandAsync(splits[0], splits[1..], isAlias, cancellationToken);
         }
-
         private async Task LocalCommandAsync(string command, string[] options, bool isAlias, CancellationToken cancellationToken)
         {
-            var aliasTable = _builder._commandContainer.Resolve<AliasTable>();
+            var aliasTable = _commandServiceContainer.Resolve<AliasTable>();
             if (aliasTable.Alias.ContainsKey(command) == true && isAlias == false)
             {
                 var sb = new StringBuilder();
                 sb.Append(aliasTable.Alias[command].Cmd);
                 sb.Append(string.Join(" ", options));
 
-                await RunCommand(sb.ToString(), true, cancellationToken);
+                await RunCommandAsync(sb.ToString(), true, cancellationToken);
             }
-            ICmdProcessor cmdProcessor;
+            ICommandAction cmdProcessor;
             try
             {
-                cmdProcessor = _builder._commandContainer.Resolve<ICmdProcessor>(command);
+                cmdProcessor = _commandServiceContainer.Resolve<ICommandAction>(command);
             }
             catch
             {
@@ -88,11 +107,10 @@ namespace CommandSystem
                 LogHelper.Error($"failed to command : {ex.Message}");
             }
         }
-
-        public override void Run()
+        public void Run()
         {
             LogHelper.Info($"*** local module start ***");
-            DisplayPrompt();
+            this.DisplayPrompt();
         }
     }
 }

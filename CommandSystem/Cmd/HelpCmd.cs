@@ -7,7 +7,7 @@ using System.Text;
 namespace CommandSystem.Cmd
 {
     [MultipleCmd("help", "?", "h")]
-    internal class HelpCmd : ICmdProcessor
+    internal class HelpCmd : ICommandAction
     {
         private readonly CommandTable _commandTable;
         private readonly AliasTable _aliasTable;
@@ -26,14 +26,14 @@ namespace CommandSystem.Cmd
             sb.AppendLine($"=== command ===");
             foreach (var name in _commandTable.GetCommandList())
             {
-                var cmd = _commandContainer.Resolve<ICmdProcessor>(name);
+                var cmd = _commandContainer.Resolve<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();
             sb.AppendLine($"=== local command ===");
             foreach (var name in _commandTable.GetLocalCommandList())
             {
-                var cmd = _commandContainer.Resolve<ICmdProcessor>(name);
+                var cmd = _commandContainer.Resolve<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();

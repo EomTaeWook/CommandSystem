@@ -1,6 +1,6 @@
 ﻿namespace CommandSystem.Interface
 {
-    public interface ICmdProcessor
+    public interface ICommandAction
     {
         Task InvokeAsync(string[] args, CancellationToken cancellationToken);
         string Print();

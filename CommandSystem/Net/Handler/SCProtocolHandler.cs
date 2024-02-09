@@ -1,4 +1,4 @@
-﻿using CommandSystem.Models;
+﻿using CommandSystem.Extensions;
 using CommandSystem.Net.Protocol.Models;
 using Dignus.DependencyInjection.Attribute;
 using Dignus.Sockets;
@@ -41,8 +41,7 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("GetModuleInfoResponse")]
         public void GetModuleInfoResponse(GetModuleInfoResponse res)
         {
-            var config = _cliModule._builder._commandContainer.Resolve<Configuration>();
-            config.ModuleName = res.ModuleName;
+            _cliModule.SetModuleName(res.ModuleName);
         }
         [ProtocolName("CancelCommandResponse")]
         public void Process(CancelCommandResponse res)

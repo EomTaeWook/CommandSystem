@@ -4,7 +4,7 @@ using CommandSystem.Interface;
 namespace CommandSystem.Cmd
 {
     [LocalCmd("clr")]
-    internal class ConsoleClearCmd : ICmdProcessor
+    internal class ConsoleClearCmd : ICommandAction
     {
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {

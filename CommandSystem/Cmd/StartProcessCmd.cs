@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace CommandSystem.Cmd
 {
     [Cmd("start")]
-    internal class StartProcessCmd : ICmdProcessor
+    internal class StartProcessCmd : ICommandAction
     {
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {

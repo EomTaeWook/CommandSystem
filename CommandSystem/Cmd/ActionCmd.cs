@@ -2,7 +2,7 @@
 
 namespace CommandSystem.Cmd
 {
-    internal class ActionCmd : ICmdProcessor
+    internal class ActionCmd : ICommandAction
     {
         private readonly Func<string[], CancellationToken, Task> _func;
         public string _desc;

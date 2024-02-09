@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace CommandSystem.Cmd
 {
     [Cmd("unalias")]
-    internal class UnAliasCmd : ICmdProcessor
+    internal class UnAliasCmd : ICommandAction
     {
         private readonly AliasTable _aliasTable;
         public UnAliasCmd(AliasTable aliasTable)

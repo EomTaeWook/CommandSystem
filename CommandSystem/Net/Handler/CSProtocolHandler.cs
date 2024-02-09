@@ -1,5 +1,4 @@
-﻿using CommandSystem.Models;
-using CommandSystem.Net.Protocol;
+﻿using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
 using Dignus.DependencyInjection.Attribute;
 using Dignus.Log;
@@ -37,7 +36,7 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("CancelCommand")]
         public void Process(CancelCommand cancelCommand)
         {
-            _cmdServerModule.CacelCommand(cancelCommand.JobId);
+            _cmdServerModule.CancelCommand(cancelCommand.JobId);
         }
 
         [ProtocolName("RemoteCommand")]
@@ -68,19 +67,14 @@ namespace CommandSystem.Net.Handler
                     JobId = jobId
                 });
             Session.Send(packet);
-
-
-            //var body = await _cmdServerModule.ProcessCommandAsync(remoteCommand.Cmd);
-
         }
 
         [ProtocolName("GetModuleInfo")]
         public void Process(GetModuleInfo _)
         {
-            var config = _cmdServerModule._builder._commandContainer.Resolve<Configuration>();
             var item = new GetModuleInfoResponse()
             {
-                ModuleName = config.ModuleName
+                ModuleName = _cmdServerModule.GetModuleName()
             };
             Session.Send(Packet.MakePacket((ushort)SCProtocol.GetModuleInfoResponse, item));
         }

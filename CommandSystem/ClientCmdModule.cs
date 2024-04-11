@@ -6,7 +6,7 @@ using Dignus.Log;
 
 namespace CommandSystem
 {
-    public class ClientCmdModule : CommandProcessor
+    public class ClientCmdModule : CommandProcessorBase
     {
         private readonly ClientModule _clientModule;
         private readonly string _ip;

@@ -4,7 +4,7 @@ using CommandSystem.Net;
 
 namespace CommandSystem
 {
-    public sealed class ServerCmdModule : CommandProcessor
+    public sealed class ServerCmdModule : CommandProcessorBase
     {
         private readonly ServerModule _serverModule;
         private readonly int _port;

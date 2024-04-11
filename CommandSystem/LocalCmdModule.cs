@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CommandSystem
 {
-    public class LocalCmdModule : CommandProcessor
+    public class LocalCmdModule : CommandProcessorBase
     {
         private CancellationTokenSource _cancellationToken = null;
         public LocalCmdModule(string moduleName = null) : this(moduleName, new CommandServiceContainer())

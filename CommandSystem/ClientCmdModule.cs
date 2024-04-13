@@ -11,8 +11,8 @@ namespace CommandSystem
         private readonly ClientModule _clientModule;
         private readonly string _ip;
         private readonly int _port;
-
-        public int JobId { get; set; } = -1;
+        public string IpString { get => _ip; }
+        public int JobId { get; private set; } = -1;
 
         private CancellationTokenSource _localCancellationToken;
         public ClientCmdModule(string ip, int port, string moduleName = null) : base(moduleName)
@@ -22,7 +22,14 @@ namespace CommandSystem
             _port = port;
             Console.CancelKeyPress += Console_CancelKeyPress;
         }
-
+        public void ResetJobId()
+        {
+            JobId = -1;
+        }
+        public void SetJobId(int jobId)
+        {
+            JobId = jobId;
+        }
         private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             if (JobId != -1)
@@ -105,9 +112,6 @@ namespace CommandSystem
             return Task.Run(() =>
             {
                 _clientModule.Run(_ip, _port);
-
-                LogHelper.Info($"*** command client module start ***");
-                this.DisplayPrompt();
             });
         }
     }

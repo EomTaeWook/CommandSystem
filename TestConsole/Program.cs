@@ -18,10 +18,7 @@ module.AddCommandAction("l", "loop desc", TestAsync);
 
 module.Build();
 
-Task.Run(() =>
-{
-    module.Run();
-});
+module.Run();
 
 while (true)
 {

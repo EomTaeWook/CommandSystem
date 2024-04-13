@@ -122,6 +122,7 @@ namespace CommandSystem.Internal
         {
             while (_jobQueue.CanRead)
             {
+                _redirectConsoleWriter.Release();
                 _currentTask = _jobQueue.Read();
                 if (_currentTask != null)
                 {

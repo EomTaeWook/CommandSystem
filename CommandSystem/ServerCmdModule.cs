@@ -8,8 +8,8 @@ namespace CommandSystem
     {
         private readonly ServerModule _serverModule;
         private readonly int _port;
-        private JobManager _jobManager;
-        private LocalCmdModule _localCmdModule;
+        private readonly JobManager _jobManager;
+        private readonly LocalCmdModule _localCmdModule;
         internal JobManager JobManager => _jobManager;
 
         public ServerCmdModule(int port, string moduleName = null)

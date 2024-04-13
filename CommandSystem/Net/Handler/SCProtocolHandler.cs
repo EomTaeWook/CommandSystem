@@ -30,23 +30,24 @@ namespace CommandSystem.Net.Handler
             if (res.Ok == false)
             {
                 Console.WriteLine(res.ErrorMessage);
-                _cliModule.JobId = -1;
+                _cliModule.ResetJobId();
                 Task.Run(_cliModule.DisplayPrompt);
             }
             else
             {
-                _cliModule.JobId = res.JobId;
+                _cliModule.SetJobId(res.JobId);
             }
         }
         [ProtocolName("GetModuleInfoResponse")]
         public void GetModuleInfoResponse(GetModuleInfoResponse res)
         {
-            _cliModule.SetModuleName(res.ModuleName);
+            _cliModule.SetModuleName($"{res.ModuleName}");
+            _cliModule.DisplayPrompt();
         }
         [ProtocolName("CancelCommandResponse")]
         public void Process(CancelCommandResponse res)
         {
-            _cliModule.JobId = -1;
+            _cliModule.ResetJobId();
             _cliModule.DisplayPrompt();
         }
         [ProtocolName("NotifyConsoleText")]
@@ -57,7 +58,7 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("CompleteRemoteCommand")]
         public void Process(CompleteRemoteCommand completeRemoteCommand)
         {
-            _cliModule.JobId = -1;
+            _cliModule.ResetJobId();
             Console.WriteLine(completeRemoteCommand.ConsoleText);
             Task.Run(_cliModule.DisplayPrompt);
         }

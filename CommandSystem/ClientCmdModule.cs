@@ -3,6 +3,7 @@ using CommandSystem.Interface;
 using CommandSystem.Models;
 using CommandSystem.Net;
 using Dignus.Log;
+using System.Diagnostics;
 
 namespace CommandSystem
 {
@@ -39,7 +40,7 @@ namespace CommandSystem
             }
             else
             {
-                //Process.GetCurrentProcess().Kill();
+                Process.GetCurrentProcess().Kill();
             }
         }
         private async Task<bool> ProcessLocalCommandAsync(string command, string[] options, bool isAlias, CancellationToken cancellationToken)

@@ -9,7 +9,12 @@ namespace CommandSystem.Extensions
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"{commandProcessor.GetModuleName()} > ");
             var line = Console.ReadLine();
-            if (string.IsNullOrEmpty(line.Trim()))
+            if (string.IsNullOrEmpty(line))
+            {
+                _ = Task.Run(commandProcessor.DisplayPrompt);
+                return;
+            }
+            else if (string.IsNullOrEmpty(line.Trim()))
             {
                 _ = Task.Run(commandProcessor.DisplayPrompt);
                 return;

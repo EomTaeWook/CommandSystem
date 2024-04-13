@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="IF $(ConfigurationName) == Release (&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)CommandSystem.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;)" />
+    <Exec Command="IF $(ConfigurationName) == Release (&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)CommandSystem.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)Dignus.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)Dignus.Extensions.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;xcopy /S/Y &quot;$(TargetDir)Dignus.Sockets.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;&#xD;&#xA;)" />
   </Target>
   <ItemGroup>
     <Reference Include="Dignus">

@@ -18,7 +18,6 @@ namespace TestConsole
             client.Build();
             client.Run();
 
-
             while (true)
             {
                 Thread.Sleep(33);

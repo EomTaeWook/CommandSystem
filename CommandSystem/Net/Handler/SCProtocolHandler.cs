@@ -41,7 +41,7 @@ namespace CommandSystem.Net.Handler
         [ProtocolName("GetModuleInfoResponse")]
         public void GetModuleInfoResponse(GetModuleInfoResponse res)
         {
-            _cliModule.SetModuleName($"{res.ModuleName}");
+            _cliModule.SetModuleName($"{res.ModuleName}@{_cliModule.IpString}");
             _cliModule.DisplayPrompt();
         }
         [ProtocolName("CancelCommandResponse")]

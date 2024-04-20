@@ -2,9 +2,8 @@
 using CommandSystem.Net.Protocol.Models;
 using Dignus.DependencyInjection.Attribute;
 using Dignus.Log;
-using Dignus.Sockets;
-using Dignus.Sockets.Attribute;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets.Attributes;
+using Dignus.Sockets.Interfaces;
 using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
@@ -18,13 +17,13 @@ namespace CommandSystem.Net.Handler
         {
             _cmdServerModule = cmdServerModule;
         }
-        public Session Session { get; private set; }
+        public ISession Session { get; private set; }
         public void Dispose()
         {
             Session = null;
         }
 
-        public void SetSession(Session session)
+        public void SetSession(ISession session)
         {
             Session = session;
         }

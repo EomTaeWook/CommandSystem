@@ -1,9 +1,8 @@
 ﻿using CommandSystem.Extensions;
 using CommandSystem.Net.Protocol.Models;
 using Dignus.DependencyInjection.Attribute;
-using Dignus.Sockets;
-using Dignus.Sockets.Attribute;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets.Attributes;
+using Dignus.Sockets.Interfaces;
 using System.Text.Json;
 
 namespace CommandSystem.Net.Handler
@@ -11,7 +10,7 @@ namespace CommandSystem.Net.Handler
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     public partial class SCProtocolHandler : ISessionHandler, IProtocolHandler<string>
     {
-        public Session Session { get; private set; }
+        public ISession Session { get; private set; }
 
         readonly ClientCmdModule _cliModule;
 
@@ -62,7 +61,7 @@ namespace CommandSystem.Net.Handler
             Console.WriteLine(completeRemoteCommand.ConsoleText);
             Task.Run(_cliModule.DisplayPrompt);
         }
-        public void SetSession(Session session)
+        public void SetSession(ISession session)
         {
             Session = session;
         }

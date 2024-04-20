@@ -3,22 +3,19 @@ using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
 using Dignus.Log;
 using Dignus.Sockets;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net
 {
     internal class ServerModule
     {
-        internal class InnerServer : ServerBase
+        internal class InnerServer(SessionCreator sessionCreator) : ServerBase(sessionCreator)
         {
-            public InnerServer(SessionCreator sessionCreator) : base(sessionCreator)
-            {
-            }
-            protected override void OnAccepted(Session session)
+            protected override void OnAccepted(ISession session)
             {
             }
 
-            protected override void OnDisconnected(Session session)
+            protected override void OnDisconnected(ISession session)
             {
             }
         }
@@ -27,7 +24,7 @@ namespace CommandSystem.Net
         private readonly ServerCmdModule _cmdModule;
         public ServerModule(ServerCmdModule cmdModule)
         {
-            ProtocolToHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
+            ProtocolHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
             _cmdModule = cmdModule;
         }
         public void Run(int port)

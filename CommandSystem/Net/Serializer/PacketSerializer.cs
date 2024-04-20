@@ -1,5 +1,5 @@
 ﻿using Dignus.Collections;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net.Serializer
 {

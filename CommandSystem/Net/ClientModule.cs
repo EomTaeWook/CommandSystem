@@ -4,7 +4,7 @@ using CommandSystem.Net.Protocol.Models;
 using CommandSystem.Net.Serializer;
 using Dignus.Log;
 using Dignus.Sockets;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net
 {
@@ -19,7 +19,7 @@ namespace CommandSystem.Net
                 _onDisconnect = onDisconnect;
             }
 
-            protected override void OnConnected(Session session)
+            protected override void OnConnected(ISession session)
             {
                 IsConnect = true;
                 LogHelper.Info("connect command server");
@@ -27,7 +27,7 @@ namespace CommandSystem.Net
                 Send(packet);
             }
 
-            protected override void OnDisconnected(Session session)
+            protected override void OnDisconnected(ISession session)
             {
                 LogHelper.Info("disconnect command server");
                 IsConnect = false;
@@ -42,7 +42,7 @@ namespace CommandSystem.Net
         public ClientModule(ClientCmdModule clientModule)
         {
             _clientModule = clientModule;
-            ProtocolToHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
+            ProtocolHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
 
             _client = new InternalClient(new SessionCreator(MakeSerializersFunc),
                 () =>

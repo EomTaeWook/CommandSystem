@@ -6,7 +6,7 @@ using CommandSystem.Net.Protocol.Models;
 using Dignus.Collections;
 using Dignus.Coroutine;
 using Dignus.DependencyInjection.Attribute;
-using Dignus.Sockets;
+using Dignus.Sockets.Interfaces;
 using System.Collections;
 
 namespace CommandSystem.Internal
@@ -104,7 +104,7 @@ namespace CommandSystem.Internal
             _currentTask.Session.Send(packet);
             _currentTask.Complete();
         }
-        public int AddJob(string line, Session session)
+        public int AddJob(string line, ISession session)
         {
             var id = GenerateNewJobId();
             var jobTask = new CommandExecutionTask()

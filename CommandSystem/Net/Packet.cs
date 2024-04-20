@@ -1,4 +1,4 @@
-﻿using Dignus.Sockets.Interface;
+﻿using Dignus.Sockets.Interfaces;
 using System.Text;
 using System.Text.Json;
 

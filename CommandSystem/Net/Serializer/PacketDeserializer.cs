@@ -1,8 +1,8 @@
 ﻿using CommandSystem.Net.Handler;
 using Dignus.Collections;
 using Dignus.Log;
-using Dignus.Sockets.Extensions;
-using Dignus.Sockets.Interface;
+using Dignus.Sockets;
+using Dignus.Sockets.Interfaces;
 using System.Text;
 
 namespace CommandSystem.Net.Serializer
@@ -42,9 +42,9 @@ namespace CommandSystem.Net.Serializer
 
             var body = Encoding.UTF8.GetString(bytes, ProtocolSize, bytes.Length - ProtocolSize);
 
-            if (_handler.CheckProtocol(protocol) == true)
+            if (ProtocolHandlerMapper.ValidateProtocol<CSProtocolHandler>(protocol) == true)
             {
-                _handler.Process(protocol, body);
+                ProtocolHandlerMapper.DispatchToHandler(_handler, protocol, body);
             }
             else
             {
@@ -72,9 +72,9 @@ namespace CommandSystem.Net.Serializer
 
             var body = Encoding.UTF8.GetString(bytes, ProtocolSize, bytes.Length - ProtocolSize);
 
-            if (_handler.CheckProtocol(protocol) == true)
+            if (ProtocolHandlerMapper.ValidateProtocol<SCProtocolHandler>(protocol) == true)
             {
-                _handler.Process(protocol, body);
+                ProtocolHandlerMapper.DispatchToHandler(_handler, protocol, body);
             }
             else
             {

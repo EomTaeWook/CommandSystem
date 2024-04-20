@@ -9,7 +9,7 @@ namespace CommandSystem.Net
 {
     internal class ServerModule
     {
-        internal class InnerServer(SessionCreator sessionCreator) : ServerBase(sessionCreator)
+        internal class InnerServer(SessionInitializer sessionCreator) : ServerBase(sessionCreator)
         {
             protected override void OnAccepted(ISession session)
             {
@@ -29,7 +29,7 @@ namespace CommandSystem.Net
         }
         public void Run(int port)
         {
-            _server = new InnerServer(new SessionCreator(MakeSerializersFunc));
+            _server = new InnerServer(new SessionInitializer(MakeSerializersFunc));
             _server.Start(port);
             LogHelper.Info($"*** command server start : port {port} ***");
         }

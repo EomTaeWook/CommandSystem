@@ -14,7 +14,7 @@ namespace CommandSystem.Net
         {
             public bool IsConnect { get; private set; }
             Action _onDisconnect;
-            public InternalClient(SessionCreator sessionCreator, Action onDisconnect) : base(sessionCreator)
+            public InternalClient(SessionInitializer sessionCreator, Action onDisconnect) : base(sessionCreator)
             {
                 _onDisconnect = onDisconnect;
             }
@@ -44,7 +44,7 @@ namespace CommandSystem.Net
             _clientModule = clientModule;
             ProtocolHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
 
-            _client = new InternalClient(new SessionCreator(MakeSerializersFunc),
+            _client = new InternalClient(new SessionInitializer(MakeSerializersFunc),
                 () =>
                 {
                     var _ = ReconnectAsync();

@@ -1,5 +1,5 @@
 ﻿using CommandSystem.Extensions;
-using CommandSystem.Internal;
+using CommandSystem.Internals;
 using CommandSystem.Net;
 
 namespace CommandSystem

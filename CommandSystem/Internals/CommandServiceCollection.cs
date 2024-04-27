@@ -1,7 +1,7 @@
 ﻿using Dignus.Collections;
 using Dignus.DependencyInjection;
 
-namespace CommandSystem.Internal
+namespace CommandSystem.Internals
 {
     internal class CommandServiceCollection : ServiceCollection
     {

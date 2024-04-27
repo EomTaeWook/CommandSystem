@@ -1,4 +1,4 @@
-﻿namespace CommandSystem.Interface
+﻿namespace CommandSystem.Interfaces
 {
     public interface ICommandProcessor
     {

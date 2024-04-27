@@ -1,4 +1,4 @@
-﻿namespace CommandSystem.Internal
+﻿namespace CommandSystem.Internals
 {
     internal class CommandProvider
     {

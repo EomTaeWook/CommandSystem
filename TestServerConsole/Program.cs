@@ -1,6 +1,6 @@
 ﻿using CommandSystem;
 using CommandSystem.Attribute;
-using CommandSystem.Interface;
+using CommandSystem.Interfaces;
 using Dignus.Extensions.Log;
 using Dignus.Log;
 using System.Diagnostics;

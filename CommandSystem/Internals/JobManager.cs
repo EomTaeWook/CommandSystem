@@ -5,11 +5,10 @@ using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
 using Dignus.Collections;
 using Dignus.Coroutine;
-using Dignus.DependencyInjection.Attribute;
-using Dignus.Sockets.Interfaces;
+using Dignus.DependencyInjection.Attributes;
 using System.Collections;
 
-namespace CommandSystem.Internal
+namespace CommandSystem.Internals
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
     internal class JobManager
@@ -58,7 +57,7 @@ namespace CommandSystem.Internal
                     {
                         ConsoleText = body
                     });
-                commandExecutionTask.Session.Send(packet);
+                commandExecutionTask.SessionContext.Send(packet);
                 yield return null;
             }
         }
@@ -79,7 +78,7 @@ namespace CommandSystem.Internal
                     {
                         ConsoleText = body
                     });
-                _currentTask.Session.Send(packet);
+                _currentTask.SessionContext.Send(packet);
             }
 
             for (int i = 0; i < _jobQueue.Count; ++i)
@@ -101,15 +100,15 @@ namespace CommandSystem.Internal
                         ConsoleText = body,
                         JobId = _currentTask.JobId
                     });
-            _currentTask.Session.Send(packet);
+            _currentTask.SessionContext.Send(packet);
             _currentTask.Complete();
         }
-        public int AddJob(string line, ISession session)
+        public int AddJob(string line, SessionContext session)
         {
             var id = GenerateNewJobId();
             var jobTask = new CommandExecutionTask()
             {
-                Session = session,
+                SessionContext = session,
                 CommandLine = line,
                 JobId = id,
                 CancellationTokenSource = new CancellationTokenSource()

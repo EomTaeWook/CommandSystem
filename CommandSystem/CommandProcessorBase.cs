@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Attribute;
 using CommandSystem.Cmd;
-using CommandSystem.Interface;
-using CommandSystem.Internal;
+using CommandSystem.Interfaces;
+using CommandSystem.Internals;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
 using Dignus.DependencyInjection.Extensions;

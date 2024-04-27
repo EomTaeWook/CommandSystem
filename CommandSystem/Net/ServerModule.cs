@@ -24,13 +24,13 @@ namespace CommandSystem.Net
         private readonly ServerCmdModule _cmdModule;
         public ServerModule(ServerCmdModule cmdModule)
         {
-            ProtocolHandlerMapper<CSProtocolHandler, string>.BindProtocol<CSProtocol>();
+            HandlerFilterInvoker<CSProtocolHandler>.BindProtocol<CSProtocol>();
             _cmdModule = cmdModule;
         }
         public void Run(int port)
         {
             _server = new InnerServer(new SessionConfiguration(MakeSerializersFunc));
-            _server.Start(port);
+            _server.Start("", port, ProtocolType.Tcp, 100);
             LogHelper.Info($"*** command server start : port {port} ***");
         }
         public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()

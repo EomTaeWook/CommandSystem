@@ -1,5 +1,5 @@
 ﻿using CommandSystem.Attribute;
-using CommandSystem.Interface;
+using CommandSystem.Interfaces;
 using System.Diagnostics;
 
 namespace CommandSystem.Cmd

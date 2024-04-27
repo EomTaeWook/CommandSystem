@@ -1,5 +1,5 @@
 ﻿using CommandSystem.Extensions;
-using CommandSystem.Interface;
+using CommandSystem.Interfaces;
 using CommandSystem.Models;
 using CommandSystem.Net;
 using Dignus.Log;

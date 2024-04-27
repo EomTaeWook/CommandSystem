@@ -1,8 +1,8 @@
 ﻿using Dignus.DependencyInjection;
 using Dignus.DependencyInjection.Extensions;
-using Dignus.DependencyInjection.Interface;
+using Dignus.DependencyInjection.Interfaces;
 
-namespace CommandSystem.Internal
+namespace CommandSystem.Internals
 {
     internal class CommandServiceContainer : IServiceContainer
     {

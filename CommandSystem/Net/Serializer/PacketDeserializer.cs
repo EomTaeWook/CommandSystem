@@ -40,16 +40,16 @@ namespace CommandSystem.Net.Serializer
 
             int protocol = BitConverter.ToInt16(bytes);
 
-            var body = Encoding.UTF8.GetString(bytes, ProtocolSize, bytes.Length - ProtocolSize);
-
-            if (ProtocolHandlerMapper.ValidateProtocol<CSProtocolHandler>(protocol) == true)
-            {
-                ProtocolHandlerMapper.DispatchToHandler(_handler, protocol, body);
-            }
-            else
+            if (ProtocolHandlerMapper.ValidateProtocol<CSProtocolHandler>(protocol) == false)
             {
                 LogHelper.Error($"[{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss:fff")}] not found protocol : {protocol}");
+                return;
             }
+            var body = Encoding.UTF8.GetString(bytes, ProtocolSize, bytes.Length - ProtocolSize);
+
+            HandlerFilterInvoker<CSProtocolHandler>.ExecuteProtocolHandler(_handler,
+                protocol,
+                body).GetAwaiter().GetResult();
         }
     }
 

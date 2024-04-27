@@ -1,6 +1,6 @@
 ﻿using CommandSystem.Extensions;
 using CommandSystem.Net.Protocol.Models;
-using Dignus.DependencyInjection.Attribute;
+using Dignus.DependencyInjection.Attributes;
 using Dignus.Sockets.Attributes;
 using Dignus.Sockets.Interfaces;
 using System.Text.Json;

@@ -1,4 +1,4 @@
-﻿using CommandSystem.Interface;
+﻿using CommandSystem.Interfaces;
 
 namespace CommandSystem.Cmd
 {

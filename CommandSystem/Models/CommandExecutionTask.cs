@@ -1,4 +1,4 @@
-﻿using Dignus.Sockets.Interfaces;
+﻿using CommandSystem.Net;
 
 namespace CommandSystem.Models
 {
@@ -6,7 +6,7 @@ namespace CommandSystem.Models
     {
         public int JobId { get; set; }
 
-        public ISession Session { get; set; }
+        public SessionContext SessionContext { get; set; }
 
         public string CommandLine { get; set; }
 

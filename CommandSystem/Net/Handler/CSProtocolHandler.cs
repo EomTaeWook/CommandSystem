@@ -1,6 +1,7 @@
-﻿using CommandSystem.Net.Protocol;
+﻿using CommandSystem.Attributes;
+using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
-using Dignus.DependencyInjection.Attribute;
+using Dignus.DependencyInjection.Attributes;
 using Dignus.Log;
 using Dignus.Sockets.Attributes;
 using Dignus.Sockets.Interfaces;
@@ -9,35 +10,31 @@ using System.Text.Json;
 namespace CommandSystem.Net.Handler
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
-    public class CSProtocolHandler : ISessionHandler, IProtocolHandler<string>
+    public class CSProtocolHandler : IProtocolHandler<string>, IProtocolHandlerContext, ISessionHandler
     {
         private readonly ServerCmdModule _cmdServerModule;
-
+        private SessionContext _sessionContext;
+        private ISession _session;
         public CSProtocolHandler(ServerCmdModule cmdServerModule)
         {
             _cmdServerModule = cmdServerModule;
         }
-        public ISession Session { get; private set; }
         public void Dispose()
         {
-            Session = null;
+            _sessionContext = null;
         }
 
-        public void SetSession(ISession session)
-        {
-            Session = session;
-        }
         public T DeserializeBody<T>(string body)
         {
             return JsonSerializer.Deserialize<T>(body);
         }
-
+        [Authorization]
         [ProtocolName("CancelCommand")]
         public void Process(CancelCommand cancelCommand)
         {
             _cmdServerModule.CancelCommand(cancelCommand.JobId);
         }
-
+        [Authorization]
         [ProtocolName("RemoteCommand")]
         public void Process(RemoteCommand remoteCommand)
         {
@@ -52,12 +49,12 @@ namespace CommandSystem.Net.Handler
                         Ok = false,
                         ErrorMessage = "command is empty!"
                     });
-                Session.Send(packet);
+                _sessionContext.Send(packet);
 
                 return;
             }
 
-            var jobId = _cmdServerModule.JobManager.AddJob(remoteCommand.Cmd, Session);
+            var jobId = _cmdServerModule.JobManager.AddJob(remoteCommand.Cmd, _sessionContext);
 
             packet = Packet.MakePacket((ushort)SCProtocol.RemoteCommandResponse,
                 new RemoteCommandResponse()
@@ -65,7 +62,7 @@ namespace CommandSystem.Net.Handler
                     Ok = true,
                     JobId = jobId
                 });
-            Session.Send(packet);
+            _sessionContext.Send(packet);
         }
 
         [ProtocolName("GetModuleInfo")]
@@ -75,7 +72,20 @@ namespace CommandSystem.Net.Handler
             {
                 ModuleName = _cmdServerModule.GetModuleName()
             };
-            Session.Send(Packet.MakePacket((ushort)SCProtocol.GetModuleInfoResponse, item));
+            _sessionContext = new SessionContext();
+            _sessionContext.SetSession(_session);
+            _sessionContext.Send(Packet.MakePacket((ushort)SCProtocol.GetModuleInfoResponse, item));
+        }
+
+        public SessionContext GetSessionContext()
+        {
+            return _sessionContext;
+        }
+
+        public void SetSession(ISession session)
+        {
+            _session = session;
+
         }
     }
 }

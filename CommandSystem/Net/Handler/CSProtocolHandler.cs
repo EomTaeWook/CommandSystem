@@ -85,7 +85,6 @@ namespace CommandSystem.Net.Handler
         public void SetSession(ISession session)
         {
             _session = session;
-
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace CommandSystem.Net
 {
-    public class SessionContext : ISessionHandler
+    public class SessionContext : ISessionComponent
     {
         private ISession _session;
         public void Dispose()

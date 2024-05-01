@@ -79,15 +79,15 @@ namespace CommandSystem.Net
         {
             _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
         }
-        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionHandler>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
             var handler = new SCProtocolHandler(_clientModule);
 
             return Tuple.Create<IPacketSerializer,
                 IPacketDeserializer,
-                ICollection<ISessionHandler>>(new PacketSerializer(),
+                ICollection<ISessionComponent>>(new PacketSerializer(),
                 new ServerPacketDeserializer(handler),
-                new List<ISessionHandler>()
+                new List<ISessionComponent>()
                 {
                     handler
                 });

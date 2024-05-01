@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace CommandSystem.Net.Handler
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
-    public class CSProtocolHandler : IProtocolHandler<string>, IProtocolHandlerContext, ISessionHandler
+    public class CSProtocolHandler : IProtocolHandler<string>, IProtocolHandlerContext, ISessionComponent
     {
         private readonly ServerCmdModule _cmdServerModule;
         private SessionContext _sessionContext;

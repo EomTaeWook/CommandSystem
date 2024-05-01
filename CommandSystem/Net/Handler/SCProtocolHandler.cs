@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace CommandSystem.Net.Handler
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
-    public partial class SCProtocolHandler : ISessionHandler, IProtocolHandler<string>
+    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>
     {
         public ISession Session { get; private set; }
 

@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Extensions;
 using CommandSystem.Interfaces;
-using CommandSystem.Internals;
 using CommandSystem.Models;
+using Dignus.DependencyInjection;
 using Dignus.Log;
 using System.Diagnostics;
 using System.Text;
@@ -11,11 +11,11 @@ namespace CommandSystem
     public class LocalCmdModule : CommandProcessorBase
     {
         private CancellationTokenSource _cancellationToken = null;
-        public LocalCmdModule(string moduleName = null) : this(moduleName, new CommandServiceContainer())
+        public LocalCmdModule(string moduleName = null) : this(moduleName, new ServiceContainer())
         {
 
         }
-        internal LocalCmdModule(string moduleName, CommandServiceContainer commandServiceContainer) : base(moduleName, commandServiceContainer)
+        internal LocalCmdModule(string moduleName, ServiceContainer commandServiceContainer) : base(moduleName, commandServiceContainer)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
         }

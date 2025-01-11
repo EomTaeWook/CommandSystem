@@ -1,7 +1,7 @@
 ﻿using CommandSystem.Attribute;
 using CommandSystem.Interfaces;
-using CommandSystem.Internals;
 using CommandSystem.Models;
+using Dignus.DependencyInjection;
 using System.Text;
 
 namespace CommandSystem.Cmd
@@ -11,9 +11,9 @@ namespace CommandSystem.Cmd
     {
         private readonly CommandTable _commandTable;
         private readonly AliasTable _aliasTable;
-        private readonly CommandServiceContainer _commandContainer;
+        private readonly ServiceContainer _commandContainer;
 
-        public HelpCmd(AliasTable aliasTable, CommandTable commandTable, CommandServiceContainer commandContainer)
+        public HelpCmd(AliasTable aliasTable, CommandTable commandTable, ServiceContainer commandContainer)
         {
             _aliasTable = aliasTable;
             _commandTable = commandTable;

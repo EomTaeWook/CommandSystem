@@ -1,7 +1,6 @@
 ﻿using CommandSystem.Attribute;
 using CommandSystem.Cmd;
 using CommandSystem.Interfaces;
-using CommandSystem.Internals;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
 using Dignus.DependencyInjection.Extensions;
@@ -12,17 +11,17 @@ namespace CommandSystem
 {
     public abstract class CommandProcessorBase : ICommandProcessor
     {
-        internal readonly CommandServiceContainer _commandServiceContainer;
+        internal readonly ServiceContainer _commandServiceContainer;
         private CommandTable _commandTable = new();
         private bool _isBuilt = false;
         internal string _moduleName;
         public abstract void RunCommand(string line);
 
-        public CommandProcessorBase(string moduleName = null) : this(moduleName, new CommandServiceContainer())
+        public CommandProcessorBase(string moduleName = null) : this(moduleName, new ServiceContainer())
         {
         }
 
-        internal CommandProcessorBase(string moduleName, CommandServiceContainer commandServiceContainer)
+        internal CommandProcessorBase(string moduleName, ServiceContainer commandServiceContainer)
         {
             if (string.IsNullOrEmpty(moduleName) == true)
             {
@@ -159,17 +158,17 @@ namespace CommandSystem
                 commandNames.Add(commandType.Name);
             }
 
-            foreach (var item in commandNames)
+            foreach (var commandName in commandNames)
             {
                 if (isLocalCommand)
                 {
-                    _commandTable.AddLoaclCommand(item);
+                    _commandTable.AddLoaclCommand(commandName);
                 }
                 else
                 {
-                    _commandTable.AddCommand(item);
+                    _commandTable.AddCommand(commandName);
                 }
-                _commandServiceContainer.RegisterType(item, commandType, LifeScope.Transient);
+                _commandServiceContainer.RegisterType(commandName, commandType, LifeScope.Transient);
             }
         }
 

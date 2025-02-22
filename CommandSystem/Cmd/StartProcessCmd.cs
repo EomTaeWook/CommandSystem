@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace CommandSystem.Cmd
 {
-    [Cmd("start")]
+    [Command("start")]
     internal class StartProcessCmd : ICommandAction
     {
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)

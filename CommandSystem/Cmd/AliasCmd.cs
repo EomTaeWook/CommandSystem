@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace CommandSystem.Cmd
 {
-    [Cmd("alias")]
+    [Command("alias")]
     internal class AliasCmd : ICommandAction
     {
         private readonly AliasTable _aliasTable;

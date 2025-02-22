@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace CommandSystem.Cmd
 {
-    [Cmd("stop")]
+    [Command("stop")]
     internal class StopProcssCmd : ICommandAction
     {
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)

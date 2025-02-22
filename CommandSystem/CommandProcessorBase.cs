@@ -45,7 +45,7 @@ namespace CommandSystem
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (type.GetCustomAttributes<CmdAttribute>().Any() ||
+                if (type.GetCustomAttributes<CommandAttribute>().Any() ||
                     type.GetCustomAttributes<MultipleCmdAttribute>().Any() ||
                     type.GetCustomAttributes<LocalCmdAttribute>().Any())
                 {
@@ -93,7 +93,7 @@ namespace CommandSystem
         public void AddCommandAction<T>(T commandAction) where T : class, ICommandAction
         {
             var commandType = commandAction.GetType();
-            var cmdAttributeType = typeof(CmdAttribute);
+            var cmdAttributeType = typeof(CommandAttribute);
             var multipleCmdAttributeType = typeof(MultipleCmdAttribute);
             var localCmdAttributeType = typeof(LocalCmdAttribute);
 
@@ -112,8 +112,8 @@ namespace CommandSystem
             }
             else if (commandType.IsDefined(cmdAttributeType))
             {
-                var attr = commandType.GetCustomAttribute<CmdAttribute>();
-                AddCommandAction(attr.Name, commandAction, false);
+                var attr = commandType.GetCustomAttribute<CommandAttribute>();
+                AddCommandAction(attr.CommandName, commandAction, false);
             }
         }
         public void AddCommandAction<T>() where T : ICommandAction
@@ -127,7 +127,7 @@ namespace CommandSystem
                 throw new InvalidCastException(nameof(commandType));
             }
 
-            var cmdAttributeType = typeof(CmdAttribute);
+            var cmdAttributeType = typeof(CommandAttribute);
             var multipleCmdAttributeType = typeof(MultipleCmdAttribute);
             var localCmdAttributeType = typeof(LocalCmdAttribute);
 
@@ -135,8 +135,8 @@ namespace CommandSystem
             bool isLocalCommand = false;
             if (commandType.IsDefined(cmdAttributeType) == true)
             {
-                var attr = commandType.GetCustomAttribute(cmdAttributeType) as CmdAttribute;
-                commandNames.Add(attr.Name);
+                var attr = commandType.GetCustomAttribute(cmdAttributeType) as CommandAttribute;
+                commandNames.Add(attr.CommandName);
             }
             else if (commandType.IsDefined(multipleCmdAttributeType) == true)
             {

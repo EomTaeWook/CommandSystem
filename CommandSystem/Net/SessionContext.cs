@@ -20,7 +20,7 @@ namespace CommandSystem.Net
             {
                 return;
             }
-            _session.Send(packet);
+            _session.TrySend(packet);
         }
     }
 }

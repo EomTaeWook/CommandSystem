@@ -1,7 +1,6 @@
 ﻿using CommandSystem;
 using CommandSystem.Attribute;
 using CommandSystem.Interfaces;
-using Dignus.Extensions.Log;
 using Dignus.Log;
 using System.Diagnostics;
 
@@ -34,7 +33,7 @@ namespace TestConsole
             Console.WriteLine($"end sleep : {count++}");
         }
 
-        [Cmd("close")]
+        [Command("close")]
         internal class Close : ICommandAction
         {
             public Task InvokeAsync(string[] args, CancellationToken cancellationToken)

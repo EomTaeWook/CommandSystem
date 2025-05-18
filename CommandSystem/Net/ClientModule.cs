@@ -24,7 +24,7 @@ namespace CommandSystem.Net
                 IsConnect = true;
                 LogHelper.Info("connect command server");
                 var packet = Packet.MakePacket((ushort)CSProtocol.GetModuleInfo, new GetModuleInfo());
-                Send(packet);
+                TrySend(packet);
             }
 
             protected override void OnDisconnected(ISession session)
@@ -42,7 +42,7 @@ namespace CommandSystem.Net
         public ClientModule(ClientCmdModule clientModule)
         {
             _clientModule = clientModule;
-            ProtocolHandlerMapper<SCProtocolHandler, string>.BindProtocol<SCProtocol>();
+            HandlerFilterInvoker<SCProtocolHandler>.BindProtocol<SCProtocol>();
 
             _client = new InternalClient(new SessionConfiguration(MakeSerializersFunc),
                 () =>
@@ -70,23 +70,23 @@ namespace CommandSystem.Net
         }
         public void SendCommand(string line)
         {
-            _client.Send(Packet.MakePacket((ushort)CSProtocol.RemoteCommand, new RemoteCommand()
+            _client.TrySend(Packet.MakePacket((ushort)CSProtocol.RemoteCommand, new RemoteCommand()
             {
                 Cmd = line
             }));
         }
         public void CacelCommand(int jobId)
         {
-            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
+            _client.TrySend(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
         }
-        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, ISessionReceiver, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
             var handler = new SCProtocolHandler(_clientModule);
 
             return Tuple.Create<IPacketSerializer,
-                IPacketDeserializer,
+                ISessionReceiver,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
-                new ServerPacketDeserializer(handler),
+                new PacketDeserializer<SCProtocolHandler>(handler),
                 new List<ISessionComponent>()
                 {
                     handler

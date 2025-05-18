@@ -44,17 +44,17 @@ namespace CommandSystem.Net
         public void Run(int port)
         {
             _server = new InnerServer(new SessionConfiguration(MakeSerializersFunc));
-            _server.Start("", port, ProtocolType.Tcp, 100);
+            _server.Start("", port, 100);
             LogHelper.Info($"*** command server start : port {port} ***");
         }
-        public Tuple<IPacketSerializer, IPacketDeserializer, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, ISessionReceiver, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
             CSProtocolHandler handler = new(_cmdModule);
 
             return Tuple.Create<IPacketSerializer,
-                IPacketDeserializer,
+                ISessionReceiver,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
-                new ClientPacketDeserializer(handler),
+                new PacketDeserializer<CSProtocolHandler>(handler),
                 new List<ISessionComponent>() { handler });
         }
     }

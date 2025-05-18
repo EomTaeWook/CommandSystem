@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "새 프로필",
+    "Projects": [
+      {
+        "Path": "TestConsole\\ServerTestConsole.csproj",
+        "Action": "Start",
+        "DebugTarget": "ServerTestConsole"
+      },
+      {
+        "Path": "TestServerConsole\\TestConsole.csproj",
+        "Action": "Start",
+        "DebugTarget": "TestConsole"
+      }
+    ]
+  }
+]

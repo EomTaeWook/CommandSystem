@@ -14,8 +14,8 @@
     <Reference Include="Dignus">
       <HintPath>..\ExternDll\Dignus.dll</HintPath>
     </Reference>
-    <Reference Include="Dignus.Extensions">
-      <HintPath>..\ExternDll\Dignus.Extensions.dll</HintPath>
+    <Reference Include="Dignus.Log">
+      <HintPath>..\ExternDll\Dignus.Log.dll</HintPath>
     </Reference>
     <Reference Include="Dignus.Sockets">
       <HintPath>..\ExternDll\Dignus.Sockets.dll</HintPath>

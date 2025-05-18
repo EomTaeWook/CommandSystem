@@ -8,8 +8,9 @@ using System.Text.Json;
 namespace CommandSystem.Net.Handler
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
-    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>
+    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>, IProtocolHandlerContext
     {
+        private SessionContext _sessionContext;
         public ISession Session { get; private set; }
 
         readonly ClientCmdModule _cliModule;
@@ -64,10 +65,17 @@ namespace CommandSystem.Net.Handler
         public void SetSession(ISession session)
         {
             Session = session;
+            _sessionContext = new SessionContext();
+            _sessionContext.SetSession(session);
         }
         public T DeserializeBody<T>(string body)
         {
             return JsonSerializer.Deserialize<T>(body);
+        }
+
+        public SessionContext GetSessionContext()
+        {
+            return _sessionContext;
         }
     }
 }

@@ -119,7 +119,7 @@ namespace CommandSystem.Internals
 
         internal CommandExecutionTask DequeueNextJob()
         {
-            while (_jobQueue.CanRead)
+            while (_jobQueue.Count > 0)
             {
                 _redirectConsoleWriter.Release();
                 _currentTask = _jobQueue.Read();

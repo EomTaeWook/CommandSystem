@@ -24,7 +24,7 @@ namespace CommandSystem.Net
                 IsConnect = true;
                 LogHelper.Info("connect command server");
                 var packet = Packet.MakePacket((ushort)CSProtocol.GetModuleInfo, new GetModuleInfo());
-                TrySend(packet);
+                Send(packet);
             }
 
             protected override void OnDisconnected(ISession session)
@@ -70,21 +70,21 @@ namespace CommandSystem.Net
         }
         public void SendCommand(string line)
         {
-            _client.TrySend(Packet.MakePacket((ushort)CSProtocol.RemoteCommand, new RemoteCommand()
+            _client.Send(Packet.MakePacket((ushort)CSProtocol.RemoteCommand, new RemoteCommand()
             {
                 Cmd = line
             }));
         }
         public void CacelCommand(int jobId)
         {
-            _client.TrySend(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
+            _client.Send(Packet.MakePacket((ushort)CSProtocol.CancelCommand, new CancelCommand() { JobId = jobId }));
         }
-        public Tuple<IPacketSerializer, ISessionReceiver, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public Tuple<IPacketSerializer, ISessionPacketProcessor, ICollection<ISessionComponent>> MakeSerializersFunc()
         {
             var handler = new SCProtocolHandler(_clientModule);
 
             return Tuple.Create<IPacketSerializer,
-                ISessionReceiver,
+                ISessionPacketProcessor,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
                 new PacketDeserializer<SCProtocolHandler>(handler),
                 new List<ISessionComponent>()

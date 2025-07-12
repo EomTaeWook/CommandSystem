@@ -29,7 +29,7 @@ namespace CommandSystem.Net.Serializer
 
             var bodySize = BitConverter.ToInt32(buffer.Peek(SizeToInt));
 
-            if (buffer.Count - SizeToInt < bodySize)
+            if (buffer.Count < bodySize + SizeToInt)
             {
                 return false;
             }

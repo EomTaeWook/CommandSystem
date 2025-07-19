@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CommandSystem.Net.Serializer
 {
-    internal class PacketDeserializer<T> : SessionPacketProcessorBase where T : class, IProtocolHandlerBase, IProtocolHandler<string>, IProtocolHandlerContext
+    internal class PacketDeserializer<T> : PacketHandlerBase where T : class, IProtocolHandlerBase, IProtocolHandler<string>, IProtocolHandlerContext
     {
         private readonly T _handler;
         protected const int SizeToInt = sizeof(int);

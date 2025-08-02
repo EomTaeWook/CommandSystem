@@ -1,24 +1,29 @@
 ﻿using CommandSystem.Attributes;
+using CommandSystem.Net;
 using CommandSystem.Net.Handler;
-using Dignus.Framework.Interfaces;
+using Dignus.Pipeline;
+using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Middlewares
 {
-    internal class ActionAttributeMiddleware<THandler> : IMiddleware<(THandler, int, string)> where THandler : IProtocolHandlerContext
+    internal class ActionAttributeMiddleware<THandler> : IRefMiddleware<Context<THandler>> where THandler : class, IProtocolHandlerContext, IProtocolHandler<string>
     {
-        private readonly ActionAttribute _actionAttribute;
-        public ActionAttributeMiddleware(ActionAttribute actionAttribute)
+        private readonly List<ActionAttribute> _actionAttributes;
+        public ActionAttributeMiddleware(List<ActionAttribute> actionAttributes)
         {
-            _actionAttribute = actionAttribute;
+            _actionAttributes = actionAttributes;
         }
 
-        public async Task InvokeAsync((THandler, int, string) context, Func<Task> next)
+        public void Invoke(ref Context<THandler> context, RefMiddlewareNext<Context<THandler>> next)
         {
-            if (_actionAttribute.ActionExecute(context.Item1) == false)
+            foreach (var actionAttribute in _actionAttributes)
             {
-                return;
+                if (actionAttribute.ActionExecute(context.Handler) == false)
+                {
+                    return;
+                }
+                next(ref context);
             }
-            await next();
         }
     }
 }

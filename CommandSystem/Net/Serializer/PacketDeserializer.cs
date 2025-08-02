@@ -54,7 +54,7 @@ namespace CommandSystem.Net.Serializer
 
             HandlerFilterInvoker<T>.ExecuteProtocolHandler(_handler,
                 protocol,
-                body).GetAwaiter().GetResult();
+                body);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CommandSystem.Attribute;
 using CommandSystem.Interfaces;
+using CommandSystem.Internals;
 using CommandSystem.Models;
 using Dignus.DependencyInjection;
 using System.Text;
@@ -13,7 +14,9 @@ namespace CommandSystem.Cmd
         private readonly AliasTable _aliasTable;
         private readonly ServiceContainer _commandContainer;
 
-        public HelpCmd(AliasTable aliasTable, CommandTable commandTable, ServiceContainer commandContainer)
+        public HelpCmd(AliasTable aliasTable,
+            CommandTable commandTable,
+            ServiceContainer commandContainer)
         {
             _aliasTable = aliasTable;
             _commandTable = commandTable;
@@ -25,13 +28,13 @@ namespace CommandSystem.Cmd
             var sb = new StringBuilder();
             foreach (var name in _commandTable.GetCommandList())
             {
-                var cmd = _commandContainer.Resolve<ICommandAction>(name);
+                var cmd = _commandContainer.GetService<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();
             foreach (var name in _commandTable.GetLocalCommandList())
             {
-                var cmd = _commandContainer.Resolve<ICommandAction>(name);
+                var cmd = _commandContainer.GetService<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();

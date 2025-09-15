@@ -1,5 +1,6 @@
 ﻿using CommandSystem.Extensions;
 using CommandSystem.Interfaces;
+using CommandSystem.Internals;
 using CommandSystem.Models;
 using CommandSystem.Net;
 using Dignus.Log;
@@ -47,14 +48,14 @@ namespace CommandSystem
         {
             if (isAlias == false)
             {
-                var table = _commandServiceContainer.Resolve<AliasTable>();
+                var table = _commandServiceContainer.GetService<AliasTable>();
                 if (table.Alias.TryGetValue(command, out AliasModel alias) == true)
                 {
                     return await ProcessLocalCommandAsync(alias.Cmd, options, true, cancellationToken);
                 }
             }
 
-            var commandTable = _commandServiceContainer.Resolve<CommandTable>();
+            var commandTable = _commandServiceContainer.GetService<CommandTable>();
 
             if (!commandTable.IsContainLocalCommand(command))
             {
@@ -62,7 +63,7 @@ namespace CommandSystem
             }
             try
             {
-                var cmdProcessor = _commandServiceContainer.Resolve<ICommandAction>(command);
+                var cmdProcessor = _commandServiceContainer.GetService<ICommandAction>(command);
                 await cmdProcessor.InvokeAsync(options, cancellationToken);
                 return true;
             }

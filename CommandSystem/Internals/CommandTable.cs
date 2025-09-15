@@ -1,11 +1,11 @@
 ﻿using Dignus.Collections;
 
-namespace CommandSystem.Models
+namespace CommandSystem.Internals
 {
     internal class CommandTable
     {
-        private UniqueSet<string> _commands = new();
-        private UniqueSet<string> _localCommands = new();
+        private readonly UniqueSet<string> _commands = [];
+        private readonly UniqueSet<string> _localCommands = [];
         public void AddCommand(string commandName)
         {
             _commands.Add(commandName);

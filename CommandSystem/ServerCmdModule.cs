@@ -17,7 +17,7 @@ namespace CommandSystem
             _serverModule = new ServerModule(this);
             _port = port;
             _jobManager = new JobManager();
-            _localCmdModule = new LocalCmdModule(moduleName, this._commandServiceContainer);
+            _localCmdModule = new LocalCmdModule(moduleName, this._serviceContainer);
         }
         public void CancelCommand(int jobId)
         {

@@ -48,14 +48,14 @@ namespace CommandSystem
         {
             if (isAlias == false)
             {
-                var table = _commandServiceContainer.GetService<AliasTable>();
+                var table = _serviceContainer.GetService<AliasTable>();
                 if (table.Alias.TryGetValue(command, out AliasModel alias) == true)
                 {
                     return await ProcessLocalCommandAsync(alias.Cmd, options, true, cancellationToken);
                 }
             }
 
-            var commandTable = _commandServiceContainer.GetService<CommandTable>();
+            var commandTable = _serviceContainer.GetService<CommandTable>();
 
             if (!commandTable.IsContainLocalCommand(command))
             {
@@ -63,7 +63,7 @@ namespace CommandSystem
             }
             try
             {
-                var cmdProcessor = _commandServiceContainer.GetService<ICommandAction>(command);
+                var cmdProcessor = _serviceContainer.GetService<ICommandAction>(command);
                 await cmdProcessor.InvokeAsync(options, cancellationToken);
                 return true;
             }

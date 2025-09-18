@@ -75,7 +75,7 @@ namespace CommandSystem
         }
         private async Task LocalCommandAsync(string command, string[] options, bool isAlias, CancellationToken cancellationToken)
         {
-            var aliasTable = _commandServiceContainer.GetService<AliasTable>();
+            var aliasTable = _serviceContainer.GetService<AliasTable>();
             if (aliasTable.Alias.ContainsKey(command) == true && isAlias == false)
             {
                 var sb = new StringBuilder();
@@ -87,7 +87,7 @@ namespace CommandSystem
             ICommandAction cmdProcessor;
             try
             {
-                cmdProcessor = _commandServiceContainer.GetService<ICommandAction>(command);
+                cmdProcessor = _serviceContainer.GetService<ICommandAction>(command);
             }
             catch
             {

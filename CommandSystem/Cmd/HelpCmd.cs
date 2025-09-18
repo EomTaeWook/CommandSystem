@@ -12,29 +12,30 @@ namespace CommandSystem.Cmd
     {
         private readonly CommandTable _commandTable;
         private readonly AliasTable _aliasTable;
-        private readonly ServiceContainer _commandContainer;
+        private readonly ServiceContainer _serviceContainer;
 
         public HelpCmd(AliasTable aliasTable,
             CommandTable commandTable,
-            ServiceContainer commandContainer)
+            ServiceContainer serviceContainer)
         {
             _aliasTable = aliasTable;
             _commandTable = commandTable;
-            _commandContainer = commandContainer;
+            _serviceContainer = serviceContainer;
         }
 
         public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
+
             foreach (var name in _commandTable.GetCommandList())
             {
-                var cmd = _commandContainer.GetService<ICommandAction>(name);
+                var cmd = _serviceContainer.GetService<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();
             foreach (var name in _commandTable.GetLocalCommandList())
             {
-                var cmd = _commandContainer.GetService<ICommandAction>(name);
+                var cmd = _serviceContainer.GetService<ICommandAction>(name);
                 sb.AppendLine($"{name} : {cmd.Print()}");
             }
             sb.AppendLine();

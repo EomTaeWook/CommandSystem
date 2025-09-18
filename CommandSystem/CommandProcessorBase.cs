@@ -12,8 +12,8 @@ namespace CommandSystem
 {
     public abstract class CommandProcessorBase : ICommandProcessor
     {
-        internal readonly ServiceContainer _commandServiceContainer;
-        private CommandTable _commandTable = new();
+        internal readonly ServiceContainer _serviceContainer;
+        private readonly CommandTable _commandTable = new();
         private bool _isBuilt = false;
         internal string _moduleName;
         public abstract void RunCommand(string line);
@@ -29,7 +29,7 @@ namespace CommandSystem
                 moduleName = Assembly.GetEntryAssembly().GetName().Name;
             }
             _moduleName = moduleName;
-            _commandServiceContainer = commandServiceContainer;
+            _serviceContainer = commandServiceContainer;
         }
 
         public void Build()
@@ -56,22 +56,22 @@ namespace CommandSystem
         }
         private void BuildInternal()
         {
-            _commandServiceContainer.RegisterType(_commandServiceContainer);
-            _commandServiceContainer.RegisterType(_commandTable);
+            _serviceContainer.RegisterType(_serviceContainer);
+            _serviceContainer.RegisterType(_commandTable);
             var assembly = Assembly.GetCallingAssembly();
-            _commandServiceContainer.RegisterDependencies(assembly);
+            _serviceContainer.RegisterDependencies(assembly);
             RegisterCommandActions(assembly);
 
             if (File.Exists(AliasTable.Path) == true)
             {
                 var alias = JsonSerializer.Deserialize<List<AliasModel>>(File.ReadAllText(AliasTable.Path));
-                _commandServiceContainer.RegisterType(new AliasTable(alias));
+                _serviceContainer.RegisterType(new AliasTable(alias));
             }
             else
             {
-                _commandServiceContainer.RegisterType(new AliasTable(new List<AliasModel>()));
+                _serviceContainer.RegisterType(new AliasTable([]));
             }
-            _commandServiceContainer.Build();
+            _serviceContainer.Build();
         }
 
         public void AddCommandAction(string command, string desc, Func<string[], CancellationToken, Task> action)
@@ -88,7 +88,7 @@ namespace CommandSystem
             {
                 _commandTable.AddCommand(commandName);
             }
-            _commandServiceContainer.RegisterType(commandName, commandAction);
+            _serviceContainer.RegisterType(commandName, commandAction);
         }
 
         public void AddCommandAction<T>(T commandAction) where T : class, ICommandAction
@@ -169,7 +169,7 @@ namespace CommandSystem
                 {
                     _commandTable.AddCommand(commandName);
                 }
-                _commandServiceContainer.RegisterType(commandName, commandType, LifeScope.Transient);
+                _serviceContainer.RegisterType(commandName, commandType, LifeScope.Transient);
             }
         }
 

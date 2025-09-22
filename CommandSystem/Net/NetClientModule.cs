@@ -8,12 +8,12 @@ using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net
 {
-    internal class ClientModule
+    internal class NetClientModule
     {
         internal class InternalClient : ClientBase
         {
             public bool IsConnect { get; private set; }
-            Action _onDisconnect;
+            private readonly Action _onDisconnect;
             public InternalClient(SessionConfiguration sessionConfiguration, Action onDisconnect) : base(sessionConfiguration)
             {
                 _onDisconnect = onDisconnect;
@@ -35,11 +35,12 @@ namespace CommandSystem.Net
             }
         }
 
-        readonly InternalClient _client;
-        readonly ClientCmdModule _clientModule;
+        public event Action<NetClientModule> Disconnected;
+        private readonly InternalClient _client;
+        private readonly ClientCmdModule _clientModule;
         private string _ip;
         private int _port;
-        public ClientModule(ClientCmdModule clientModule)
+        public NetClientModule(ClientCmdModule clientModule)
         {
             _clientModule = clientModule;
             HandlerFilterInvoker<SCProtocolHandler>.BindProtocol<SCProtocol>();
@@ -47,21 +48,9 @@ namespace CommandSystem.Net
             _client = new InternalClient(new SessionConfiguration(MakeSerializersFunc),
                 () =>
                 {
-                    var _ = ReconnectAsync();
+                    Disconnected?.Invoke(this);
                 });
         }
-
-        private async Task ReconnectAsync()
-        {
-            await Task.Delay(5000);
-            LogHelper.Info("reconnect command server...");
-            _client.Connect(_ip, _port);
-            if (_client.IsConnect == false)
-            {
-                _ = ReconnectAsync();
-            }
-        }
-
         public void Run(string ip, int port)
         {
             _ip = ip;

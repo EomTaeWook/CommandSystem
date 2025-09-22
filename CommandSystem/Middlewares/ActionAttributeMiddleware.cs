@@ -1,12 +1,10 @@
 ﻿using CommandSystem.Attributes;
 using CommandSystem.Net;
-using CommandSystem.Net.Handler;
 using Dignus.Pipeline;
-using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Middlewares
 {
-    internal class ActionAttributeMiddleware<THandler> : IRefMiddleware<Context<THandler>> where THandler : class, IProtocolHandlerContext, IProtocolHandler<string>
+    internal class ActionAttributeMiddleware : IRefMiddleware<PipeContext>
     {
         private readonly List<ActionAttribute> _actionAttributes;
         public ActionAttributeMiddleware(List<ActionAttribute> actionAttributes)
@@ -14,11 +12,11 @@ namespace CommandSystem.Middlewares
             _actionAttributes = actionAttributes;
         }
 
-        public void Invoke(ref Context<THandler> context, RefMiddlewareNext<Context<THandler>> next)
+        public void Invoke(ref PipeContext context, RefMiddlewareNext<PipeContext> next)
         {
             foreach (var actionAttribute in _actionAttributes)
             {
-                if (actionAttribute.ActionExecute(context.Handler) == false)
+                if (actionAttribute.ActionExecute(context) == false)
                 {
                     return;
                 }

@@ -1,5 +1,4 @@
-﻿using CommandSystem.Net.Handler;
-using Dignus.Collections;
+﻿using Dignus.Collections;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interfaces;
@@ -8,7 +7,7 @@ using System.Text;
 
 namespace CommandSystem.Net.Serializer
 {
-    internal class PacketDeserializer<T> : PacketHandlerBase where T : class, IProtocolHandlerBase, IProtocolHandler<string>, IProtocolHandlerContext
+    internal class PacketDeserializer<T> : StatelessPacketHandlerBase where T : class, IProtocolHandlerBase, IProtocolHandler<string>
     {
         private readonly T _handler;
         protected const int SizeToInt = sizeof(int);
@@ -18,7 +17,7 @@ namespace CommandSystem.Net.Serializer
         {
             _handler = handler;
         }
-        public override bool TakeReceivedPacket(ArrayQueue<byte> buffer, out ArraySegment<byte> packet, out int consumedBytes)
+        public override bool TakeReceivedPacket(ISession session, ArrayQueue<byte> buffer, out ArraySegment<byte> packet, out int consumedBytes)
         {
             packet = null;
             consumedBytes = 0;
@@ -41,7 +40,7 @@ namespace CommandSystem.Net.Serializer
             return buffer.TrySlice(out packet, bodySize);
         }
 
-        public override void ProcessPacket(in ArraySegment<byte> packet)
+        public override void ProcessPacket(ISession session, in ArraySegment<byte> packet)
         {
             int protocol = BitConverter.ToInt16(packet);
 
@@ -52,7 +51,8 @@ namespace CommandSystem.Net.Serializer
             }
             var body = Encoding.UTF8.GetString(packet.Array, packet.Offset + ProtocolSize, packet.Count - ProtocolSize);
 
-            HandlerFilterInvoker<T>.ExecuteProtocolHandler(_handler,
+            HandlerFilterInvoker<T>.ExecuteProtocolHandler(session,
+                _handler,
                 protocol,
                 body);
         }

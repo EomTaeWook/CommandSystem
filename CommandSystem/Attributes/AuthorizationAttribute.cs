@@ -1,16 +1,25 @@
-﻿using CommandSystem.Net.Handler;
+﻿using CommandSystem.Net;
 
 namespace CommandSystem.Attributes
 {
     internal class AuthorizationAttribute : ActionAttribute
     {
-        public override bool ActionExecute(IProtocolHandlerContext context)
+        public override bool ActionExecute(PipeContext context)
         {
-            if (context.GetSessionContext() == null)
+            if (context.Session == null)
             {
                 return false;
             }
-            return true;
+
+            foreach (var item in context.Session.GetSessionComponents())
+            {
+                if (item is SessionContext sessionContext)
+                {
+                    return sessionContext.IsAuth;
+                }
+            }
+
+            return false;
         }
     }
 }

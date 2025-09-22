@@ -1,4 +1,4 @@
-﻿using CommandSystem.Net.Handler;
+﻿using CommandSystem.Net;
 
 namespace CommandSystem.Attributes
 {
@@ -7,6 +7,6 @@ namespace CommandSystem.Attributes
     {
         public int Order { get; private set; } = order;
 
-        public abstract bool ActionExecute(IProtocolHandlerContext context);
+        public abstract bool ActionExecute(PipeContext context);
     }
 }

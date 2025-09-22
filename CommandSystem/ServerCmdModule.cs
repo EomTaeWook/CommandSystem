@@ -6,7 +6,7 @@ namespace CommandSystem
 {
     public sealed class ServerCmdModule : CommandProcessorBase
     {
-        private readonly ServerModule _serverModule;
+        private readonly NetServerModule _serverModule;
         private readonly int _port;
         private readonly JobManager _jobManager;
         private readonly LocalCmdModule _localCmdModule;
@@ -14,7 +14,7 @@ namespace CommandSystem
 
         public ServerCmdModule(int port, string moduleName = null)
         {
-            _serverModule = new ServerModule(this);
+            _serverModule = new NetServerModule(this);
             _port = port;
             _jobManager = new JobManager();
             _localCmdModule = new LocalCmdModule(moduleName, this._serviceContainer);
@@ -57,7 +57,6 @@ namespace CommandSystem
                 _localCmdModule.Run();
             });
         }
-
         public override void RunCommand(string line)
         {
             _localCmdModule.RunCommand(line);

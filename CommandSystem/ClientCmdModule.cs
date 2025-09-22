@@ -10,7 +10,7 @@ namespace CommandSystem
 {
     public class ClientCmdModule : CommandProcessorBase
     {
-        private readonly ClientModule _clientModule;
+        private readonly NetClientModule _clientModule;
         private readonly string _ip;
         private readonly int _port;
         public string IpString { get => _ip; }
@@ -19,7 +19,7 @@ namespace CommandSystem
         private CancellationTokenSource _localCancellationToken;
         public ClientCmdModule(string ip, int port, string moduleName = null) : base(moduleName)
         {
-            _clientModule = new ClientModule(this);
+            _clientModule = new NetClientModule(this);
             _ip = ip;
             _port = port;
             Console.CancelKeyPress += Console_CancelKeyPress;

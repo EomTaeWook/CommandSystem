@@ -4,6 +4,7 @@ namespace CommandSystem.Net
 {
     public class SessionContext : ISessionComponent
     {
+        public bool IsAuth { get; set; }
         private ISession _session;
         public void Dispose()
         {

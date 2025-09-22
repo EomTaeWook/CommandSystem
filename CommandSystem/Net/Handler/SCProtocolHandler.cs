@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace CommandSystem.Net.Handler
 {
     [Injectable(Dignus.DependencyInjection.LifeScope.Transient)]
-    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>, IProtocolHandlerContext
+    public partial class SCProtocolHandler : ISessionComponent, IProtocolHandler<string>
     {
         private SessionContext _sessionContext;
         public ISession Session { get; private set; }
@@ -25,41 +25,41 @@ namespace CommandSystem.Net.Handler
             Session = null;
         }
         [ProtocolName("RemoteCommandResponse")]
-        public void Process(RemoteCommandResponse res)
+        public void Process(RemoteCommandResponse packet)
         {
-            if (res.Ok == false)
+            if (packet.Ok == false)
             {
-                Console.WriteLine(res.ErrorMessage);
+                Console.WriteLine(packet.ErrorMessage);
                 _cliModule.ResetJobId();
                 Task.Run(_cliModule.DisplayPrompt);
             }
             else
             {
-                _cliModule.SetJobId(res.JobId);
+                _cliModule.SetJobId(packet.JobId);
             }
         }
         [ProtocolName("GetModuleInfoResponse")]
-        public void GetModuleInfoResponse(GetModuleInfoResponse res)
+        public void GetModuleInfoResponse(GetModuleInfoResponse packet)
         {
-            _cliModule.SetModuleName($"{res.ModuleName}@{_cliModule.IpString}");
+            _cliModule.SetModuleName($"{packet.ModuleName}@{_cliModule.IpString}");
             _cliModule.DisplayPrompt();
         }
         [ProtocolName("CancelCommandResponse")]
-        public void Process(CancelCommandResponse res)
+        public void Process(CancelCommandResponse packet)
         {
             _cliModule.ResetJobId();
             _cliModule.DisplayPrompt();
         }
         [ProtocolName("NotifyConsoleText")]
-        public void Process(NotifyConsoleText notifyConsoleText)
+        public void Process(NotifyConsoleText packet)
         {
-            Console.Write(notifyConsoleText.ConsoleText);
+            Console.Write(packet.ConsoleText);
         }
         [ProtocolName("CompleteRemoteCommand")]
-        public void Process(CompleteRemoteCommand completeRemoteCommand)
+        public void Process(CompleteRemoteCommand packet)
         {
             _cliModule.ResetJobId();
-            Console.WriteLine(completeRemoteCommand.ConsoleText);
+            Console.WriteLine(packet.ConsoleText);
             Task.Run(_cliModule.DisplayPrompt);
         }
         public void SetSession(ISession session)
@@ -71,11 +71,6 @@ namespace CommandSystem.Net.Handler
         public T DeserializeBody<T>(string body)
         {
             return JsonSerializer.Deserialize<T>(body);
-        }
-
-        public SessionContext GetSessionContext()
-        {
-            return _sessionContext;
         }
     }
 }

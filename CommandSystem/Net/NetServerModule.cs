@@ -1,4 +1,5 @@
-﻿using CommandSystem.Net.Handler;
+﻿using CommandSystem.Net.Components;
+using CommandSystem.Net.Handler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
 using Dignus.Log;
@@ -7,26 +8,12 @@ using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net
 {
-    class Test : ISessionComponent
-    {
-        public void Dispose()
-        {
-
-        }
-
-        public void SetSession(ISession session)
-        {
-
-        }
-    }
-
-    internal class ServerModule
+    internal class NetServerModule
     {
         internal class InnerServer(SessionConfiguration sessionConfiguration) : ServerBase(sessionConfiguration)
         {
             protected override void OnAccepted(ISession session)
             {
-                session.AddSessionComponent(new Test());
             }
 
             protected override void OnDisconnected(ISession session)
@@ -36,7 +23,7 @@ namespace CommandSystem.Net
 
         private InnerServer _server;
         private readonly ServerCmdModule _cmdModule;
-        public ServerModule(ServerCmdModule cmdModule)
+        public NetServerModule(ServerCmdModule cmdModule)
         {
             HandlerFilterInvoker<CSProtocolHandler>.BindProtocol<CSProtocol>();
             _cmdModule = cmdModule;
@@ -55,7 +42,11 @@ namespace CommandSystem.Net
                 IPacketHandler,
                 ICollection<ISessionComponent>>(new PacketSerializer(),
                 new PacketDeserializer<CSProtocolHandler>(handler),
-                new List<ISessionComponent>() { handler });
+                new List<ISessionComponent>()
+                {
+                    handler,
+                    new AuthenticationComponent()
+                });
         }
     }
 }

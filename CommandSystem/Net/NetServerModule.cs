@@ -34,13 +34,11 @@ namespace CommandSystem.Net
             _server.Start("", port, 100);
             LogHelper.Info($"*** command server start : port {port} ***");
         }
-        public Tuple<IPacketSerializer, IPacketHandler, ICollection<ISessionComponent>> MakeSerializersFunc()
+        public SessionSetup MakeSerializersFunc()
         {
             CSProtocolHandler handler = new(_cmdModule);
 
-            return Tuple.Create<IPacketSerializer,
-                IPacketHandler,
-                ICollection<ISessionComponent>>(new PacketSerializer(),
+            return new SessionSetup(new PacketSerializer(),
                 new PacketDeserializer<CSProtocolHandler>(handler),
                 new List<ISessionComponent>()
                 {

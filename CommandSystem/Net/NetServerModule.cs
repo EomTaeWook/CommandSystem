@@ -1,10 +1,16 @@
-﻿using CommandSystem.Net.Components;
+﻿using CommandSystem.Attributes;
+using CommandSystem.Middlewares;
+using CommandSystem.Net.Components;
 using CommandSystem.Net.Handler;
+using CommandSystem.Net.Middlewares;
+using CommandSystem.Net.PacketHandler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
+using Dignus.Framework.Pipeline;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interfaces;
+using System.Reflection;
 
 namespace CommandSystem.Net
 {
@@ -25,7 +31,18 @@ namespace CommandSystem.Net
         private readonly ServerCmdModule _cmdModule;
         public NetServerModule(ServerCmdModule cmdModule)
         {
-            HandlerFilterInvoker<CSProtocolHandler>.BindProtocol<CSProtocol>();
+            ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.Use<CSProtocol>((method, pipe) =>
+            {
+                var filters = method.GetCustomAttributes<ActionAttribute>();
+                var orderedFilters = filters.OrderBy(r => r.Order).ToList();
+
+                var middlewarePipeline = new RefMiddlewarePipeline<CSPipeContext>();
+
+                var actionMiddleware = new ActionAttributeMiddleware(orderedFilters);
+
+                pipe.Use(actionMiddleware.Invoke);
+
+            });
             _cmdModule = cmdModule;
         }
         public void Run(int port)
@@ -39,7 +56,7 @@ namespace CommandSystem.Net
             CSProtocolHandler handler = new(_cmdModule);
 
             return new SessionSetup(new PacketSerializer(),
-                new PacketDeserializer<CSProtocolHandler>(handler),
+                new ServerPacketHandler(handler),
                 new List<ISessionComponent>()
                 {
                     handler,

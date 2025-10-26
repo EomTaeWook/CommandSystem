@@ -1,22 +1,24 @@
-﻿using Dignus.Collections;
+﻿using CommandSystem.Net.Handler;
+using CommandSystem.Net.Middlewares;
+using Dignus.Collections;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interfaces;
 using Dignus.Sockets.Processing;
 using System.Text;
 
-namespace CommandSystem.Net.Serializer
+namespace CommandSystem.Net.PacketHandler
 {
-    internal class PacketDeserializer<T> : StatelessPacketHandlerBase where T : class, IProtocolHandlerBase, IProtocolHandler<string>
+    public class ServerPacketHandler : StatelessPacketHandlerBase
     {
-        private readonly T _handler;
-        protected const int SizeToInt = sizeof(int);
-        protected const int ProtocolSize = sizeof(ushort);
-
-        public PacketDeserializer(T handler)
+        private readonly CSProtocolHandler _handler;
+        private const int SizeToInt = sizeof(int);
+        private const int ProtocolSize = sizeof(ushort);
+        public ServerPacketHandler(CSProtocolHandler handler)
         {
             _handler = handler;
         }
+
         public override bool TakeReceivedPacket(ISession session, ArrayQueue<byte> buffer, out ArraySegment<byte> packet, out int consumedBytes)
         {
             packet = null;
@@ -44,17 +46,22 @@ namespace CommandSystem.Net.Serializer
         {
             int protocol = BitConverter.ToInt16(packet);
 
-            if (ProtocolHandlerMapper.ValidateProtocol<T>(protocol) == false)
+            if (ProtocolHandlerMapper.ValidateProtocol<CSProtocolHandler>(protocol) == false)
             {
-                LogHelper.Error($"[{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss:fff")}] not found protocol : {protocol}");
+                LogHelper.Error($"[{DateTime.Now:yyyy-MM-dd hh:mm:ss:fff}] not found protocol : {protocol}");
                 return;
             }
             var body = Encoding.UTF8.GetString(packet.Array, packet.Offset + ProtocolSize, packet.Count - ProtocolSize);
 
-            HandlerFilterInvoker<T>.ExecuteProtocolHandler(session,
-                _handler,
-                protocol,
-                body);
+            CSPipeContext context = new()
+            {
+                Body = body,
+                Handler = _handler,
+                Protocol = protocol,
+                Session = session
+            };
+
+            ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.Execute(protocol, ref context);
         }
     }
 }

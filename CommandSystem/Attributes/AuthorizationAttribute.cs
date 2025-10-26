@@ -1,13 +1,16 @@
 ﻿using CommandSystem.Net;
+using CommandSystem.Net.Middlewares;
+using Dignus.Log;
 
 namespace CommandSystem.Attributes
 {
     internal class AuthorizationAttribute : ActionAttribute
     {
-        public override bool ActionExecute(PipeContext context)
+        public override bool ActionExecute(CSPipeContext context)
         {
             if (context.Session == null)
             {
+                LogHelper.Error($"session is null");
                 return false;
             }
 

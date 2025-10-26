@@ -1,4 +1,6 @@
 ﻿using CommandSystem.Net.Handler;
+using CommandSystem.Net.Middlewares;
+using CommandSystem.Net.PacketHandler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Protocol.Models;
 using CommandSystem.Net.Serializer;
@@ -43,7 +45,7 @@ namespace CommandSystem.Net
         public NetClientModule(ClientCmdModule clientModule)
         {
             _clientModule = clientModule;
-            HandlerFilterInvoker<SCProtocolHandler>.BindProtocol<SCProtocol>();
+            ProtocolPipelineInvoker<SCPipeContext, SCProtocolHandler, string>.Use<SCProtocol>();
 
             _client = new InternalClient(new SessionConfiguration(MakeSerializersFunc),
                 () =>
@@ -73,7 +75,7 @@ namespace CommandSystem.Net
             var handler = new SCProtocolHandler(_clientModule);
 
             return new SessionSetup(new PacketSerializer(),
-                new PacketDeserializer<SCProtocolHandler>(handler),
+                new ClientPacketHandler(handler),
                 new List<ISessionComponent>()
                 {
                     handler

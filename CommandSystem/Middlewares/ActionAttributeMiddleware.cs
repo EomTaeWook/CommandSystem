@@ -1,10 +1,10 @@
 ﻿using CommandSystem.Attributes;
-using CommandSystem.Net;
-using Dignus.Pipeline;
+using CommandSystem.Net.Middlewares;
+using Dignus.Framework.Pipeline;
 
 namespace CommandSystem.Middlewares
 {
-    internal class ActionAttributeMiddleware : IRefMiddleware<PipeContext>
+    internal class ActionAttributeMiddleware : IRefMiddleware<CSPipeContext>
     {
         private readonly List<ActionAttribute> _actionAttributes;
         public ActionAttributeMiddleware(List<ActionAttribute> actionAttributes)
@@ -12,7 +12,7 @@ namespace CommandSystem.Middlewares
             _actionAttributes = actionAttributes;
         }
 
-        public void Invoke(ref PipeContext context, RefMiddlewareNext<PipeContext> next)
+        public void Invoke(ref CSPipeContext context, RefMiddlewareNext<CSPipeContext> next)
         {
             foreach (var actionAttribute in _actionAttributes)
             {
@@ -20,8 +20,8 @@ namespace CommandSystem.Middlewares
                 {
                     return;
                 }
-                next(ref context);
             }
+            next(ref context);
         }
     }
 }

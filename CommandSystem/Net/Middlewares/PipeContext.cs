@@ -1,5 +1,4 @@
 ﻿using CommandSystem.Net.Handler;
-using Dignus.Framework.Pipeline.Interfaces;
 using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Net.Middlewares

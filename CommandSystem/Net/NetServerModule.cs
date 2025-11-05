@@ -6,7 +6,6 @@ using CommandSystem.Net.Middlewares;
 using CommandSystem.Net.PacketHandler;
 using CommandSystem.Net.Protocol;
 using CommandSystem.Net.Serializer;
-using Dignus.Framework.Pipeline;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interfaces;
@@ -31,18 +30,21 @@ namespace CommandSystem.Net
         private readonly ServerCmdModule _cmdModule;
         public NetServerModule(ServerCmdModule cmdModule)
         {
-            ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.Use<CSProtocol>((method, pipe) =>
-            {
-                var filters = method.GetCustomAttributes<ActionAttribute>();
-                var orderedFilters = filters.OrderBy(r => r.Order).ToList();
+            var invoker = ProtocolHandlerMapper<CSProtocolHandler, string>.BindAndCreateInvoker<CSPipeContext, CSProtocol>();
 
-                var middlewarePipeline = new RefMiddlewarePipeline<CSPipeContext>();
+            ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.Use<CSProtocol>(invoker,
+                (method, pipe) =>
+                {
+                    var filters = method.GetCustomAttributes<ActionAttribute>();
+                    var orderedFilters = filters.OrderBy(r => r.Order).ToList();
 
-                var actionMiddleware = new ActionAttributeMiddleware(orderedFilters);
+                    if (orderedFilters.Count > 0)
+                    {
+                        var actionMiddleware = new ActionAttributeMiddleware(orderedFilters);
 
-                pipe.Use(actionMiddleware.Invoke);
-
-            });
+                        pipe.Use(actionMiddleware);
+                    }
+                });
             _cmdModule = cmdModule;
         }
         public void Run(int port)

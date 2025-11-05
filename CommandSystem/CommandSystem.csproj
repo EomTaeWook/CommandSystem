@@ -15,7 +15,7 @@
     <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.Sockets.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Dignus.Log" Version="1.0.3" />
-    <PackageReference Include="Dignus.Sockets" Version="1.0.4" />
+    <PackageReference Include="Dignus.Log" Version="1.0.4" />
+    <PackageReference Include="Dignus.Sockets" Version="1.0.7" />
   </ItemGroup>
 </Project>

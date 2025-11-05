@@ -45,7 +45,10 @@ namespace CommandSystem.Net
         public NetClientModule(ClientCmdModule clientModule)
         {
             _clientModule = clientModule;
-            ProtocolPipelineInvoker<SCPipeContext, SCProtocolHandler, string>.Use<SCProtocol>();
+
+            var invoker = ProtocolHandlerMapper<SCProtocolHandler, string>.BindAndCreateInvoker<SCPipeContext, SCProtocol>();
+
+            ProtocolPipelineInvoker<SCPipeContext, SCProtocolHandler, string>.Use<SCProtocol>(invoker);
 
             _client = new InternalClient(new SessionConfiguration(MakeSerializersFunc),
                 () =>

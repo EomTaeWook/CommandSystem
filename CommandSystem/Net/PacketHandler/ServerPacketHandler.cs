@@ -42,7 +42,7 @@ namespace CommandSystem.Net.PacketHandler
             return buffer.TrySlice(out packet, bodySize);
         }
 
-        public override void ProcessPacket(ISession session, in ArraySegment<byte> packet)
+        public async override Task ProcessPacketAsync(ISession session, ArraySegment<byte> packet)
         {
             int protocol = BitConverter.ToInt16(packet);
 
@@ -61,7 +61,7 @@ namespace CommandSystem.Net.PacketHandler
                 Session = session
             };
 
-            ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.Execute(protocol, ref context);
+            await ProtocolPipelineInvoker<CSPipeContext, CSProtocolHandler, string>.ExecuteAsync(protocol, ref context);
         }
     }
 }

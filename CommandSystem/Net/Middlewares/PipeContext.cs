@@ -1,9 +1,10 @@
 ﻿using CommandSystem.Net.Handler;
 using Dignus.Sockets.Interfaces;
+using Dignus.Sockets.Pipeline;
 
 namespace CommandSystem.Net.Middlewares
 {
-    internal struct CSPipeContext : IMiddlewareContext<CSProtocolHandler, string>
+    internal struct CSPipeContext : IPipelineContext<CSProtocolHandler, string>
     {
         public ISession Session { get; init; }
         public int Protocol { get; set; }
@@ -13,7 +14,7 @@ namespace CommandSystem.Net.Middlewares
         public string Body { get; set; }
     }
 
-    internal struct SCPipeContext : IMiddlewareContext<SCProtocolHandler, string>
+    internal struct SCPipeContext : IPipelineContext<SCProtocolHandler, string>
     {
         public int Protocol { get; set; }
         public SCProtocolHandler Handler { get; set; }

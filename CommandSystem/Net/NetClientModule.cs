@@ -7,6 +7,7 @@ using CommandSystem.Net.Serializer;
 using Dignus.Log;
 using Dignus.Sockets;
 using Dignus.Sockets.Interfaces;
+using Dignus.Sockets.Pipeline;
 
 namespace CommandSystem.Net
 {
@@ -46,9 +47,9 @@ namespace CommandSystem.Net
         {
             _clientModule = clientModule;
 
-            var invoker = ProtocolHandlerMapper<SCProtocolHandler, string>.BindAndCreateInvoker<SCPipeContext, SCProtocol>();
-
-            ProtocolPipelineInvoker<SCPipeContext, SCProtocolHandler, string>.Use<SCProtocol>(invoker);
+            ProtocolPipelineInvoker<SCPipeContext, SCProtocolHandler, string>
+                .Bind<SCProtocol>(new ProtocolHandlerBinder<SCPipeContext, SCProtocolHandler, string>())
+                .Build();
 
             _client = new InternalClient(new SessionConfiguration(MakeSerializersFunc),
                 () =>

@@ -90,6 +90,11 @@ namespace CommandSystem.Actors
 
             if (commandType == null)
             {
+                sender.Post(new CommandResponseMessage() 
+                {
+                    Content = $"Command `{commandName}` was not found. Please type 'help' to see the available commands."
+                }, Self);
+
                 sender.Post(new CompleteCommandMessage(), Self);
                 return;
             }

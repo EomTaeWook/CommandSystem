@@ -53,7 +53,7 @@ namespace CommandSystem
                 Bytes = telnetNegotiation
             });
 
-            var bytes = Encoding.GetEncoding(949).GetBytes($"{moduleName} > ");
+            var bytes = Encoding.GetEncoding(949).GetBytes($"{GetModuleName()} > ");
             var promptMessage = new RawNetworkMessage()
             {
                 Bytes = bytes

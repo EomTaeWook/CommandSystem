@@ -22,19 +22,32 @@ namespace CommandSystem.Cmd
                 var command = (ICommand)serviceProvider.GetService(commandType);
                 sb.AppendLine($"{name} : {command.Print()}");
             }
-            sb.AppendLine();
 
+            if(commandTable.GetLocalCommandList().Any())
+            {
+                sb.AppendLine();
+            }
+            
             foreach (var name in commandTable.GetLocalCommandList())
             {
                 var commandType = commandTable.GetCommandType(name);
                 var command = (ICommand)serviceProvider.GetService(commandType);
                 sb.AppendLine($"{name} : {command.Print()}");
             }
-            sb.AppendLine();
+
+            if(aliasTable.Alias.Count > 0)
+            {
+                sb.AppendLine();
+            }
 
             foreach (var item in aliasTable.GetDatas())
             {
                 sb.AppendLine($"{item.Alias} : {item.Cmd}");
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.Length -= Environment.NewLine.Length;
             }
 
             sender.Post(new CommandResponseMessage()

@@ -31,7 +31,7 @@ namespace CommandSystem.Actors
             }
             else if(message is CommandResponseMessage commandResponse)
             {
-                var bytes = Encoding.GetEncoding(949).GetBytes($"\r\n{commandResponse.Content}");
+                var bytes = Encoding.GetEncoding(949).GetBytes($"\r\n{commandResponse.Content}\r\n");
                 NetworkSession.SendAsync(bytes);
             }
 

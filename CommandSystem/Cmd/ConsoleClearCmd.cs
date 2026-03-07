@@ -1,12 +1,13 @@
-﻿using CommandSystem.Attribute;
+﻿using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
+using Dignus.Actor.Core.Actors;
 
 namespace CommandSystem.Cmd
 {
-    [LocalCmd("clr")]
-    internal class ConsoleClearCmd : ICommandAction
+    [LocalCommand("clr")]
+    internal class ConsoleClearCmd : ICommand
     {
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
             Console.Clear();
             return Task.CompletedTask;

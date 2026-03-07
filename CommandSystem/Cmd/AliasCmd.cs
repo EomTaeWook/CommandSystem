@@ -1,29 +1,29 @@
-﻿using CommandSystem.Attribute;
+﻿using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
-using CommandSystem.Models;
+using CommandSystem.Internals;
+using CommandSystem.Messages;
+using Dignus.Actor.Core.Actors;
 using System.Text;
 using System.Text.Json;
 
 namespace CommandSystem.Cmd
 {
     [Command("alias")]
-    internal class AliasCmd : ICommandAction
+    internal class AliasCmd(AliasTable aliasTable) : ICommand
     {
-        private readonly AliasTable _aliasTable;
-        public AliasCmd(AliasTable aliasTable)
-        {
-            _aliasTable = aliasTable;
-        }
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
             if (args.Length == 0)
             {
                 var sb = new StringBuilder();
-                foreach (var item in _aliasTable.GetDatas())
+                foreach (var item in aliasTable.GetDatas())
                 {
                     sb.AppendLine($"{item.Alias} : {item.Cmd}");
                 }
-                Console.WriteLine(sb.ToString());
+                sender.Post(new CommandResponseMessage()
+                {
+                    Content = sb.ToString()
+                });
                 return Task.CompletedTask;
             }
             else
@@ -41,15 +41,17 @@ namespace CommandSystem.Cmd
                     throw new Exception($"command is empty!");
                 }
 
-                _aliasTable.AddAlias(new AliasModel()
+                aliasTable.AddAlias(new AliasModel()
                 {
                     Alias = aliasCmd,
                     Cmd = cmd
                 });
 
-                var datas = _aliasTable.GetDatas();
+                var datas = aliasTable.GetDatas();
                 var json = JsonSerializer.Serialize(datas);
-                return File.WriteAllTextAsync(AliasTable.Path, json);
+                File.WriteAllText(AliasTable.Path, json);
+
+                return Task.CompletedTask;
             }
         }
 

@@ -1,13 +1,14 @@
-﻿using CommandSystem.Attribute;
+﻿using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
+using Dignus.Actor.Core.Actors;
 using System.Diagnostics;
 
 namespace CommandSystem.Cmd
 {
     [Command("stop")]
-    internal class StopProcssCmd : ICommandAction
+    internal class StopProcssCmd : ICommand
     {
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
             if (args.Length == 0)
             {

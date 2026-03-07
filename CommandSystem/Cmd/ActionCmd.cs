@@ -1,19 +1,15 @@
 ﻿using CommandSystem.Interfaces;
+using Dignus.Actor.Core.Actors;
 
 namespace CommandSystem.Cmd
 {
-    internal class ActionCmd : ICommandAction
+    internal class ActionCmd(Func<string[], IActorRef, CancellationToken, Task> func, string desc) : ICommand
     {
-        private readonly Func<string[], CancellationToken, Task> _func;
-        public string _desc;
-        public ActionCmd(Func<string[], CancellationToken, Task> func, string desc)
+        public string _desc = desc;
+
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
-            _desc = desc;
-            _func = func;
-        }
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
-        {
-            return _func.Invoke(args, cancellationToken);
+            return func.Invoke(args, sender, cancellationToken);
         }
 
         public string Print()

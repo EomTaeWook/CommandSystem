@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CommandSystem;
-using CommandSystem.Attribute;
+using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
+using Dignus.Actor.Core.Actors;
 using Dignus.Log;
 using System.Diagnostics;
 
@@ -9,7 +10,7 @@ using System.Diagnostics;
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
-var module = new ServerCmdModule(50000);
+var module = new TelnetCommandRunner();
 
 module.AddCommandAction<Close>();
 
@@ -24,7 +25,7 @@ while (true)
     await Task.Delay(33);
 }
 
-async Task TestAsync(string[] args, CancellationToken cancellationToken)
+async Task TestAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
 {
     var count = 0;
     while (cancellationToken.IsCancellationRequested == false)
@@ -36,9 +37,9 @@ async Task TestAsync(string[] args, CancellationToken cancellationToken)
 }
 
 [Command("close")]
-internal class Close : ICommandAction
+internal class Close : ICommand
 {
-    public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+    public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
     {
         Process.GetCurrentProcess().Close();
         return Task.CompletedTask;

@@ -1,49 +1,47 @@
-﻿using CommandSystem.Attribute;
+﻿using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
 using CommandSystem.Internals;
-using CommandSystem.Models;
-using Dignus.DependencyInjection;
+using CommandSystem.Messages;
+using Dignus.Actor.Core.Actors;
 using System.Text;
 
 namespace CommandSystem.Cmd
 {
-    [MultipleCmd("help", "?", "h")]
-    internal class HelpCmd : ICommandAction
+    [MultipleCommand("help", "?", "h")]
+    internal class HelpCmd(AliasTable aliasTable,
+        CommandTable commandTable,
+        IServiceProvider serviceProvider) : ICommand
     {
-        private readonly CommandTable _commandTable;
-        private readonly AliasTable _aliasTable;
-        private readonly ServiceContainer _serviceContainer;
-
-        public HelpCmd(AliasTable aliasTable,
-            CommandTable commandTable,
-            ServiceContainer serviceContainer)
-        {
-            _aliasTable = aliasTable;
-            _commandTable = commandTable;
-            _serviceContainer = serviceContainer;
-        }
-
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
 
-            foreach (var name in _commandTable.GetCommandList())
+            foreach (var name in commandTable.GetCommandList())
             {
-                var cmd = _serviceContainer.GetService<ICommandAction>(name);
-                sb.AppendLine($"{name} : {cmd.Print()}");
+                var commandType = commandTable.GetCommandType(name);
+                var command = (ICommand)serviceProvider.GetService(commandType);
+                sb.AppendLine($"{name} : {command.Print()}");
             }
             sb.AppendLine();
-            foreach (var name in _commandTable.GetLocalCommandList())
+
+            foreach (var name in commandTable.GetLocalCommandList())
             {
-                var cmd = _serviceContainer.GetService<ICommandAction>(name);
-                sb.AppendLine($"{name} : {cmd.Print()}");
+                var commandType = commandTable.GetCommandType(name);
+                var command = (ICommand)serviceProvider.GetService(commandType);
+                sb.AppendLine($"{name} : {command.Print()}");
             }
             sb.AppendLine();
-            foreach (var item in _aliasTable.GetDatas())
+
+            foreach (var item in aliasTable.GetDatas())
             {
                 sb.AppendLine($"{item.Alias} : {item.Cmd}");
             }
-            Console.Write(sb.ToString());
+
+            sender.Post(new CommandResponseMessage()
+            {
+                Content = sb.ToString()
+            });
+
             return Task.CompletedTask;
         }
 

@@ -1,7 +1,7 @@
-﻿namespace CommandSystem.Attribute
+﻿namespace CommandSystem.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class CommandAttribute : System.Attribute
+    public class CommandAttribute : Attribute
     {
         public string CommandName { get; private set; }
 

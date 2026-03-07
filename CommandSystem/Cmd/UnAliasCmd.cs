@@ -1,28 +1,24 @@
-﻿using CommandSystem.Attribute;
+﻿using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
-using CommandSystem.Models;
+using CommandSystem.Internals;
+using Dignus.Actor.Core.Actors;
 using System.Text.Json;
 
 namespace CommandSystem.Cmd
 {
     [Command("unalias")]
-    internal class UnAliasCmd : ICommandAction
+    internal class UnAliasCmd(AliasTable aliasTable) : ICommand
     {
-        private readonly AliasTable _aliasTable;
-        public UnAliasCmd(AliasTable aliasTable)
-        {
-            _aliasTable = aliasTable;
-        }
-
-        public Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
             foreach (var item in args)
             {
-                _aliasTable.RemoveAlias(item);
+                aliasTable.RemoveAlias(item);
             }
-            var datas = _aliasTable.GetDatas();
+            var datas = aliasTable.GetDatas();
             var json = JsonSerializer.Serialize(datas);
-            return File.WriteAllTextAsync(AliasTable.Path, json, cancellationToken);
+            File.WriteAllText(AliasTable.Path, json);
+            return Task.CompletedTask;
         }
 
         public string Print()

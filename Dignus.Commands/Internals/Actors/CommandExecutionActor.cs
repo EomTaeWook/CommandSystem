@@ -101,6 +101,11 @@ namespace Dignus.Commands.Internals.Actors
                 return;
             }
 
+            if(currentPath.StartsWith('/'))
+            {
+                currentPath = currentPath.TrimStart('/');
+            }
+
             var aliasTable = serviceProvider.GetService<AliasTable>();
             if (aliasTable.Alias.ContainsKey(commandName) == true && isAlias == false)
             {

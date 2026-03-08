@@ -15,7 +15,7 @@ using System.Reflection;
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
-var module = new LocalCommandRunner();
+var module = new TelnetCommandRunner();
 
 module.AddCommand<Close>();
 

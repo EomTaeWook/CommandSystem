@@ -6,7 +6,7 @@ namespace Dignus.Commands.Internals.Actors
 {
     internal class LocalConsoleActor(IActorRef commandExecutionActorRef, string moduleName) : ActorBase
     {
-        private readonly List<string> _currentCommandPath = [];
+        private string _currentPath = "/";
         protected override ValueTask OnReceive(IActorMessage message, IActorRef sender)
         {
             if(message is CommandResponseMessage commandResponse)
@@ -35,23 +35,16 @@ namespace Dignus.Commands.Internals.Actors
         }
         private void HandleDirectoryChanged(ChangeDirectoryRequestMessage changeDirectoryRequest)
         {
-            var result = CommandPathResolver.Resolve(_currentCommandPath, changeDirectoryRequest.Path);
-            _currentCommandPath.Clear();
-            _currentCommandPath.AddRange(result);
+            var result = CommandPathResolver.Resolve(_currentPath, changeDirectoryRequest.Path);
+            _currentPath = result;
         }
         private void ShowPrompt()
         {
-            var currentPath = "/";
-            if (_currentCommandPath.Count > 0)
-            {
-                currentPath = string.Join("/", _currentCommandPath);
-            }
-
-            Console.Write($"{moduleName}:{currentPath}> ");
+            Console.Write($"{moduleName}:{_currentPath}> ");
             Task.Run(() => 
             {
                 var line = Console.ReadLine();
-                var message = new RunCommandMessage(string.Join("/", _currentCommandPath), line);
+                var message = new RunCommandMessage(_currentPath, line);
                 commandExecutionActorRef.Post(message, Self);
             });
         }

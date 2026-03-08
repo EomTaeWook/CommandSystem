@@ -70,13 +70,7 @@ namespace Dignus.Commands
             {
                 Bytes = telnetNegotiation
             });
-
-            var bytes = Encoding.UTF8.GetBytes($"{GetModuleName()} > ");
-            var promptMessage = new OutgoingNetworkMessage()
-            {
-                Bytes = bytes
-            };
-            connectedActorRef.Post(promptMessage);
+            connectedActorRef.Post(new StartPromptMessage());
         }
 
         void ITelnetServerEventHandler.OnDisconnected(IActorRef connectedActorRef)

@@ -2,15 +2,15 @@
 {
     internal static class CommandPathResolver
     {
-        public static string[] Resolve(IReadOnlyList<string> currentPathSegments, string inputPath)
+        public static string Resolve(string currentPath, string inputPath)
         {
             if (string.IsNullOrWhiteSpace(inputPath))
             {
-                return [.. currentPathSegments];
+                return Normalize(currentPath);
             }
 
-            string normalizedPath = inputPath.Replace('\\', '/');
-            bool isAbsolutePath = normalizedPath.StartsWith('/');
+            string normalizedInputPath = inputPath.Replace('\\', '/');
+            bool isAbsolutePath = normalizedInputPath.StartsWith('/');
             List<string> resolvedPathSegments;
             if (isAbsolutePath)
             {
@@ -18,28 +18,55 @@
             }
             else
             {
-                resolvedPathSegments = [.. currentPathSegments];
+                resolvedPathSegments = SplitPath(Normalize(currentPath));
             }
-            string[] inputPathSegments = normalizedPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+            string[] inputPathSegments = normalizedInputPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
             foreach (string inputPathSegment in inputPathSegments)
             {
                 if (inputPathSegment == ".")
                 {
                     continue;
                 }
+
                 if (inputPathSegment == "..")
                 {
                     if (resolvedPathSegments.Count > 0)
                     {
                         resolvedPathSegments.RemoveAt(resolvedPathSegments.Count - 1);
                     }
-
                     continue;
                 }
+
                 resolvedPathSegments.Add(inputPathSegment);
             }
-            return [.. resolvedPathSegments];
+
+            if (resolvedPathSegments.Count == 0)
+            {
+                return "/";
+            }
+
+            return "/" + string.Join("/", resolvedPathSegments);
+        }
+        private static string Normalize(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return "/";
+            }
+
+            string normalizedPath = path.Replace('\\', '/');
+
+            if (normalizedPath.StartsWith('/') == false)
+            {
+                normalizedPath = "/" + normalizedPath;
+            }
+
+            return normalizedPath.TrimEnd('/');
+        }
+        private static List<string> SplitPath(string path)
+        {
+            return [.. path.Split('/', StringSplitOptions.RemoveEmptyEntries)];
         }
     }
 }

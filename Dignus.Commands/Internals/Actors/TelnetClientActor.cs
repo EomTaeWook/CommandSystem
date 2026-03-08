@@ -18,7 +18,7 @@ namespace Dignus.Commands.Internals.Actors
             (byte)ControlCharacter.Backspace
         ];
 
-        private readonly List<string> _currentCommandPath = [];
+        private string _currentPath = "/";
         private readonly TelnetProtocolDecoder _protocolDecoder = new();
         protected override ValueTask OnReceive(IActorMessage message, IActorRef sender)
         {
@@ -42,8 +42,12 @@ namespace Dignus.Commands.Internals.Actors
             }
             else if(message is CommandResponseMessage commandResponse)
             {
-                var bytes = Encoding.UTF8.GetBytes($"\r\n{commandResponse.Content}");
+                var bytes = Encoding.UTF8.GetBytes($"{commandResponse.Content}");
                 NetworkSession.SendAsync(bytes);
+            }
+            else if (message is StartPromptMessage)
+            {
+                ShowPrompt();
             }
             else if(message is ChangeDirectoryRequestMessage changeDirectoryRequestMessage)
             {
@@ -54,13 +58,7 @@ namespace Dignus.Commands.Internals.Actors
         }
         private void ShowPrompt() 
         {
-            var currentPath = "/";
-            if(_currentCommandPath.Count > 0)
-            {
-                currentPath = string.Join("/", _currentCommandPath);
-            }
-
-            var bytes = Encoding.UTF8.GetBytes($"{moduleName}:{currentPath} > ");
+            var bytes = Encoding.UTF8.GetBytes($"{moduleName}:{_currentPath} > ");
             var promptMessage = new OutgoingNetworkMessage()
             {
                 Bytes = bytes
@@ -69,9 +67,8 @@ namespace Dignus.Commands.Internals.Actors
         }
         private void HandleDirectoryChanged(ChangeDirectoryRequestMessage changeDirectoryRequest)
         {
-            var result = CommandPathResolver.Resolve(_currentCommandPath, changeDirectoryRequest.Path);
-            _currentCommandPath.Clear();
-            _currentCommandPath.AddRange(result);
+            var result = CommandPathResolver.Resolve(_currentPath, changeDirectoryRequest.Path);
+            _currentPath = result;
         }
         private void HandleInput(IncomingNetworkMessage message)
         {
@@ -106,7 +103,12 @@ namespace Dignus.Commands.Internals.Actors
 
                         if (string.IsNullOrWhiteSpace(commandLine) == false)
                         {
-                            commandExecutionActorRef.Post(new RunCommandMessage(string.Join("/", _currentCommandPath), commandLine), Self);
+                            this.Post(Self, new CommandResponseMessage()
+                            {
+                                Content = "\r\n"
+                            });
+
+                            commandExecutionActorRef.Post(new RunCommandMessage(string.Join("/", _currentPath), commandLine), Self);
                         }
                         return;
                     }

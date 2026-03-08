@@ -1,0 +1,8 @@
+﻿using Dignus.Actor.Core.Messages;
+
+namespace Dignus.Commands.Messages
+{
+    internal struct CompleteCommandMessage : IActorMessage
+    {
+    }
+}

@@ -1,4 +1,4 @@
-# CommandSystem
+# Dignus.Commands
 
 Lightweight command execution system for **local console** and **telnet remote control**.
 

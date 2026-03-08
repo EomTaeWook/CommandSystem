@@ -1,0 +1,102 @@
+﻿using Dignus.Actor.Core.Actors;
+using Dignus.Actor.Core.Messages;
+using Dignus.Commands.Internals;
+using Dignus.Commands.Internals.Actors;
+using Dignus.Commands.Internals.Interfaces;
+using Dignus.Commands.Messages;
+using Dignus.Commands.Network;
+using Dignus.Commands.Network.Messages;
+using Dignus.Commands.Pipeline;
+using Dignus.Framework.Pipeline;
+using Dignus.Framework.Pipeline.Interfaces;
+using System.Text;
+
+namespace Dignus.Commands
+{
+    public class TelnetCommandRunner(string moduleName = null, int port = 23) : 
+        CommandModuleBase(moduleName), 
+        ITelnetServerEventHandler
+    {
+        private TelnetServer _telnetServer;
+        private readonly int _port = port;
+
+        private readonly AsyncPipeline<CommandPipelineContext> _commandPipeline = new();
+
+        public void Build()
+        {
+            BuildInternal();
+            _commandPipeline.Use(new CommandExecutionMiddleware());
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            _telnetServer = new TelnetServer(this);
+        }
+        public void AddMiddleware(IAsyncMiddleware<CommandPipelineContext> middlewareInstance)
+        {
+            _commandPipeline.Use(middlewareInstance);
+        }
+        public void AddMiddleware(AsyncPipelineDelegate<CommandPipelineContext> middleware)
+        {
+            _commandPipeline.Use(middleware);
+        }
+        public void Run()
+        {
+            if(_telnetServer == null)
+            {
+                throw new InvalidOperationException("the TelnetServer instance is null. Call the Build method first.");
+            }
+            _telnetServer.Start(_port);
+        }
+
+        public void Close()
+        {
+            _telnetServer.Close();
+        }
+
+        public void OnAccepted(IActorRef connectedActorRef)
+        {
+            // 텔넷 협상을 위한 Interpret As Command (IAC) 바이트 정의
+            byte interpretAsCommand = 0xFF; // IAC
+            byte willCommand = 0xFB;        // WILL
+            byte echoOption = 0x01;         // ECHO
+            byte suppressGoAheadOption = 0x03; // SUPPRESS GO AHEAD
+
+            byte[] telnetNegotiation =
+            [
+                interpretAsCommand, willCommand, echoOption,
+                interpretAsCommand, willCommand, suppressGoAheadOption
+            ];
+
+            connectedActorRef.Post(new OutgoingNetworkMessage()
+            {
+                Bytes = telnetNegotiation
+            });
+
+            var bytes = Encoding.UTF8.GetBytes($"{GetModuleName()} > ");
+            var promptMessage = new OutgoingNetworkMessage()
+            {
+                Bytes = bytes
+            };
+            connectedActorRef.Post(promptMessage);
+        }
+
+        void ITelnetServerEventHandler.OnDisconnected(IActorRef connectedActorRef)
+        {
+            connectedActorRef.Post(new CancelCommandMessage());
+        }
+
+        void ITelnetServerEventHandler.OnDeadLetterMessage(DeadLetterMessage deadLetterMessage)
+        {
+
+        }
+
+        TelnetClientActor ITelnetServerEventHandler.CreateSessionActor()
+        {
+            var executionActorRef = CommandActorSystem.Instance.Spawn(() =>
+            {
+                return new CommandExecutionActor(_serviceProvider, _commandPipeline, null);
+            });
+            return new TelnetClientActor(executionActorRef,
+                GetModuleName());
+        }
+    }
+}

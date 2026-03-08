@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>EomTaeWook</Authors>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageProjectUrl>https://github.com/EomTaeWook/CommandSystem</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EomTaeWook/CommandSystem</RepositoryUrl>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(ConfigurationName)' == 'Release'">
+    <Exec Command="xcopy /Y /S &quot;$(TargetDir)CommandSystem.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
+    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
+    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.Log.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
+    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.Sockets.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
+  </Target>
+  <ItemGroup>
+    <PackageReference Include="Dignus.ActorServer" Version="1.1.7" />
+  </ItemGroup>
+</Project>

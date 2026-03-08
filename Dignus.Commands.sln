@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11520.95
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTestConsole", "TestConsole\ServerTestConsole.csproj", "{65A1582E-6FCC-866C-6FF1-92E7B37D307B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dignus.Commands", "Dignus.Commands\Dignus.Commands.csproj", "{3554B6FD-3E10-38E3-84F1-A200A6CE2443}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65A1582E-6FCC-866C-6FF1-92E7B37D307B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65A1582E-6FCC-866C-6FF1-92E7B37D307B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65A1582E-6FCC-866C-6FF1-92E7B37D307B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65A1582E-6FCC-866C-6FF1-92E7B37D307B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3554B6FD-3E10-38E3-84F1-A200A6CE2443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3554B6FD-3E10-38E3-84F1-A200A6CE2443}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3554B6FD-3E10-38E3-84F1-A200A6CE2443}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3554B6FD-3E10-38E3-84F1-A200A6CE2443}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A3580DA-EB93-4A14-9263-9C8450E76661}
+	EndGlobalSection
+EndGlobal

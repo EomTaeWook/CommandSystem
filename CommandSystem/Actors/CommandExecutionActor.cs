@@ -1,15 +1,20 @@
 ﻿using CommandSystem.Interfaces;
 using CommandSystem.Internals;
 using CommandSystem.Messages;
+using CommandSystem.Pipeline;
 using Dignus.Actor.Core.Actors;
 using Dignus.Actor.Core.Messages;
 using Dignus.Collections;
 using Dignus.DependencyInjection.Extensions;
+using Dignus.Framework.Pipeline;
 using System.Text;
 
 namespace CommandSystem.Actors
 {
-    internal class CommandExecutionActor(IServiceProvider serviceProvider, Action onExitRequested) : ActorBase
+    internal class CommandExecutionActor(IServiceProvider serviceProvider,
+        AsyncPipeline<CommandPipelineContext> commandPipeline,
+        Action onExitRequested
+        ) : ActorBase
     {
         private CancellationTokenSource _cancellationToken;
         private readonly ArrayQueue<RunCommandMessage> _commandMessages = [];
@@ -34,7 +39,6 @@ namespace CommandSystem.Actors
                 if(_cancellationToken != null)
                 {
                     _cancellationToken.Cancel();
-                    Post(Self, new CompleteCommandMessage());
                 }
                 else
                 {
@@ -52,7 +56,6 @@ namespace CommandSystem.Actors
                     await RunCommandAsync(item.CommandLine, sender);
                 }
             }
-
         }
         public async Task RunCommandAsync(string line, IActorRef actorRef)
         {
@@ -66,10 +69,11 @@ namespace CommandSystem.Actors
         public Task RunCommandAsync(string line, bool isAlias, IActorRef actorRef, CancellationToken cancellationToken)
         {
             var splits = line.Split(" ");
-            return RunCommandAsync(splits[0], splits[1..], isAlias, actorRef, cancellationToken);
+            _ = ExecuteCommandInternalAsync(splits[0], splits[1..], isAlias, actorRef, cancellationToken);
+            return Task.CompletedTask;
         }
 
-        private async Task RunCommandAsync(string commandName,
+        private async Task ExecuteCommandInternalAsync(string commandName,
             string[] args,
             bool isAlias,
             IActorRef sender,
@@ -102,7 +106,15 @@ namespace CommandSystem.Actors
             try
             {
                 var command = (ICommand)serviceProvider.GetService(commandType);
-                await command.InvokeAsync(args, sender, cancellationToken);    
+                var context = new CommandPipelineContext()
+                {
+                    CancellationToken = cancellationToken,
+                    Command = command,
+                    CommandArguments = args,
+                    SenderActorRef = sender
+                };
+
+               await commandPipeline.InvokeAsync(ref context);
             }
             catch (OperationCanceledException)
             {

@@ -1,4 +1,0 @@
-﻿namespace CommandSystem.Pipeline
-{
-
-}

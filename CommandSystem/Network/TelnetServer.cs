@@ -13,20 +13,14 @@ namespace CommandSystem.Network
 {
     internal class TelnetServer
     {
-        internal class InnerTelnetServer(string moduleName,
-            IServiceProvider serviceProvider,
+        internal class InnerTelnetServer(
             ITelnetServerEventHandler telnetServerEventHandler,
             ServerOptions options) : 
             TcpServerBase<TelnetClientActor>(CommandActorSystem.Instance, options)
         {
             protected override TelnetClientActor CreateSessionActor()
             {
-                var executionActorRef = CommandActorSystem.Instance.Spawn(() =>
-                {
-                    return new CommandExecutionActor(serviceProvider, null);
-                });
-
-                return new TelnetClientActor(executionActorRef, moduleName);
+                return telnetServerEventHandler.CreateSessionActor();
             }
 
             protected override void OnAccepted(IActorRef connectedActorRef)
@@ -47,20 +41,16 @@ namespace CommandSystem.Network
 
         private readonly InnerTelnetServer _server;
 
-        public TelnetServer(string moduleName,
-            IServiceProvider serviceProvider,
-            ITelnetServerEventHandler  telnetServerEventHandler)
+        public TelnetServer(ITelnetServerEventHandler  telnetServerEventHandler)
         {
             _server = new InnerTelnetServer(
-                moduleName,
-                serviceProvider,
                 telnetServerEventHandler,
                 new ServerOptions()
             {
                 Network = new ActorNetworkOptions() 
                 {
                     Decoder = new PacketDecoder(),
-                    MessageSerializer = new PacketSerializer(),
+                    MessageSerializer = new MessageSerializer(),
                 }
             });
         }

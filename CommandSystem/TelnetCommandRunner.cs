@@ -1,9 +1,14 @@
-﻿using CommandSystem.Interfaces;
+﻿using CommandSystem.Actors;
+using CommandSystem.Interfaces;
 using CommandSystem.Internals;
+using CommandSystem.Messages;
 using CommandSystem.Network;
 using CommandSystem.Network.Messages;
+using CommandSystem.Pipeline;
 using Dignus.Actor.Core.Actors;
 using Dignus.Actor.Core.Messages;
+using Dignus.Framework.Pipeline;
+using Dignus.Framework.Pipeline.Interfaces;
 using System.Text;
 
 namespace CommandSystem
@@ -14,11 +19,24 @@ namespace CommandSystem
     {
         private TelnetServer _telnetServer;
         private readonly int _port = port;
+
+        private readonly AsyncPipeline<CommandPipelineContext> _commandPipeline = new();
+
         public void Build()
         {
             BuildInternal();
+            _commandPipeline.Use(new CommandExecutionMiddleware());
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            _telnetServer = new TelnetServer(GetModuleName(), _serviceProvider, this);
+
+            _telnetServer = new TelnetServer(this);
+        }
+        public void AddMiddleware(IAsyncMiddleware<CommandPipelineContext> middlewareInstance)
+        {
+            _commandPipeline.Use(middlewareInstance);
+        }
+        public void AddMiddleware(AsyncPipelineDelegate<CommandPipelineContext> middleware)
+        {
+            _commandPipeline.Use(middleware);
         }
         public void Run()
         {
@@ -53,7 +71,7 @@ namespace CommandSystem
                 Bytes = telnetNegotiation
             });
 
-            var bytes = Encoding.GetEncoding(949).GetBytes($"{GetModuleName()} > ");
+            var bytes = Encoding.UTF8.GetBytes($"{GetModuleName()} > ");
             var promptMessage = new RawNetworkMessage()
             {
                 Bytes = bytes
@@ -61,14 +79,24 @@ namespace CommandSystem
             connectedActorRef.Post(promptMessage);
         }
 
-        public void OnDisconnected(IActorRef connectedActorRef)
+        void ITelnetServerEventHandler.OnDisconnected(IActorRef connectedActorRef)
         {
-            
+            connectedActorRef.Post(new CancelCommandMessage());
         }
 
-        public void OnDeadLetterMessage(DeadLetterMessage deadLetterMessage)
+        void ITelnetServerEventHandler.OnDeadLetterMessage(DeadLetterMessage deadLetterMessage)
         {
-            
+
+        }
+
+        TelnetClientActor ITelnetServerEventHandler.CreateSessionActor()
+        {
+            var executionActorRef = CommandActorSystem.Instance.Spawn(() =>
+            {
+                return new CommandExecutionActor(_serviceProvider, _commandPipeline, null);
+            });
+            return new TelnetClientActor(executionActorRef,
+                GetModuleName());
         }
     }
 }

@@ -10,34 +10,29 @@ namespace CommandSystem.Actors
         {
             if(message is CommandResponseMessage commandResponse)
             {
-                Console.WriteLine(commandResponse);
+                Console.WriteLine(commandResponse.Content);
             }
             else if(message is StartPromptMessage)
             {
-                DisplayPrompt();
+                ShowPrompt();
             }
             else if(message is CancelCommandMessage)
             {
                 commandExecutionActorRef.Post(message, Self);
             }
+            else if (message is CompleteCommandMessage)
+            {
+                commandExecutionActorRef.Post(message);
+
+                ShowPrompt();
+            }
             return ValueTask.CompletedTask;
         }
 
-        private void DisplayPrompt()
+        private void ShowPrompt()
         {
             Console.Write($"{moduleName} > ");
             var line = Console.ReadLine();
-            if (string.IsNullOrEmpty(line))
-            {
-                _ = Task.Run(DisplayPrompt);
-                return;
-            }
-            else if (string.IsNullOrEmpty(line.Trim()))
-            {
-                _ = Task.Run(DisplayPrompt);
-                return;
-            }
-
             var message = new RunCommandMessage(line);
             commandExecutionActorRef.Post(message, Self);
         }

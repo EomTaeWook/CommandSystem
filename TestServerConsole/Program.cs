@@ -2,19 +2,40 @@
 using CommandSystem;
 using CommandSystem.Attributes;
 using CommandSystem.Interfaces;
+using CommandSystem.Messages;
+using CommandSystem.Pipeline;
+using Dignus.Actor.Core;
 using Dignus.Actor.Core.Actors;
+using Dignus.Framework.Pipeline;
 using Dignus.Log;
+using ServerTestConsole.Attributes;
 using System.Diagnostics;
+using System.Reflection;
 
 
 LogBuilder.Configuration(LogConfigXmlReader.Load($"{AppContext.BaseDirectory}DignusLog.config"));
 LogBuilder.Build();
 
-var module = new TelnetCommandRunner();
+var module = new LocalCommandRunner();
 
 module.AddCommandAction<Close>();
 
 module.AddCommandAction("l", "loop desc", TestAsync);
+
+module.AddMiddleware((ref CommandPipelineContext context, ref AsyncPipelineNext<CommandPipelineContext> next) =>
+{
+    var auth = context.Command.GetType().GetCustomAttribute<AuthAttribute>();
+
+    if (auth.Execute(context) == false)
+    {
+        context.SenderActorRef.Post(new CommandResponseMessage()
+        {
+            Content = "invalid auth"
+        });
+        return Task.CompletedTask;
+    }
+    return next.InvokeAsync(ref context);
+});
 
 module.Build();
 
@@ -30,12 +51,21 @@ async Task TestAsync(string[] args, IActorRef sender, CancellationToken cancella
     var count = 0;
     while (cancellationToken.IsCancellationRequested == false)
     {
-        Console.WriteLine($"sleep : {count++}");
-        await Task.Delay(1000, cancellationToken);
+        sender.Post(new CommandResponseMessage()
+        {
+            Content = $"sleep : {count++}"
+        });
+
+        await Task.Delay(2000, cancellationToken);
     }
-    Console.WriteLine($"end sleep : {count++}");
+
+    sender.Post(new CommandResponseMessage()
+    {
+        Content = $"end sleep : {count++}"
+    });
 }
 
+[Auth]
 [Command("close")]
 internal class Close : ICommand
 {

@@ -6,7 +6,7 @@ using Dignus.Sockets.Interfaces;
 
 namespace CommandSystem.Network.Serializer
 {
-    internal class PacketSerializer : IActorMessageSerializer
+    internal class MessageSerializer : IActorMessageSerializer
     {
         public ArraySegment<byte> MakeSendBuffer(IPacket packet)
         {

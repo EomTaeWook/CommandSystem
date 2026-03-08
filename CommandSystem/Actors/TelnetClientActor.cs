@@ -1,5 +1,6 @@
 ﻿using CommandSystem.Internals;
 using CommandSystem.Messages;
+using CommandSystem.Network.Decoder;
 using CommandSystem.Network.Messages;
 using Dignus.Actor.Core.Actors;
 using Dignus.Actor.Core.Messages;
@@ -8,11 +9,17 @@ using System.Text;
 
 namespace CommandSystem.Actors
 {
-    internal class TelnetClientActor(IActorRef commandExecutionActorRef, string moduleName) : SessionActorBase
+    internal class TelnetClientActor(IActorRef commandExecutionActorRef,
+        string moduleName) : SessionActorBase
     {
-        private readonly StringBuilder _inputBuffer = new();
-        private bool _isHandlingTelnetCommand = false;
-        private bool _isHandlingEscapeSequence = false;
+        private static readonly byte[] BackspaceEraseSequence =
+        [
+            (byte)ControlCharacter.Backspace,
+            0x20,
+            (byte)ControlCharacter.Backspace
+        ];
+
+        private readonly TelnetProtocolDecoder _protocolDecoder = new();
         protected override ValueTask OnReceive(IActorMessage message, IActorRef sender)
         {
             if(message is CommandLineMessage commandLineMessage)
@@ -20,10 +27,14 @@ namespace CommandSystem.Actors
                 HandleInput(commandLineMessage);
                 return ValueTask.CompletedTask;
             }
+            else if(message is CancelCommandMessage)
+            {
+                commandExecutionActorRef.Post(message);
+            }
             else if(message is CompleteCommandMessage)
             {
-                ShowPrompt();
                 commandExecutionActorRef.Post(message);
+                ShowPrompt();
             }
             else if(message is RawNetworkMessage networkMessage)
             {
@@ -31,7 +42,7 @@ namespace CommandSystem.Actors
             }
             else if(message is CommandResponseMessage commandResponse)
             {
-                var bytes = Encoding.GetEncoding(949).GetBytes($"\r\n{commandResponse.Content}\r\n");
+                var bytes = Encoding.UTF8.GetBytes($"\r\n{commandResponse.Content}");
                 NetworkSession.SendAsync(bytes);
             }
 
@@ -39,7 +50,7 @@ namespace CommandSystem.Actors
         }
         private void ShowPrompt() 
         {
-            var bytes = Encoding.GetEncoding(949).GetBytes($"{moduleName} > ");
+            var bytes = Encoding.UTF8.GetBytes($"\r\n{moduleName} > ");
             var promptMessage = new RawNetworkMessage()
             {
                 Bytes = bytes
@@ -49,77 +60,51 @@ namespace CommandSystem.Actors
 
         private void HandleInput(CommandLineMessage message)
         {
-            for (int i = 0; i < message.CommandLine.Count; ++i)
+            _protocolDecoder.DecodeIncomingNetworkBytes(message.CommandLine,
+                HandleValidCharacter);
+        }
+
+        private void HandleValidCharacter(char character)
+        {
+            ControlCharacter controlCharacter = (ControlCharacter)character;
+
+            switch (controlCharacter)
             {
-                byte currentByte = message.CommandLine[i];
-
-                // Telnet IAC 협상 필터
-                if (currentByte == 0xFF || _isHandlingTelnetCommand)
-                {
-                    _isHandlingTelnetCommand = true;
-                    if (currentByte != 0xFF && currentByte <= 0xEF)
+                case ControlCharacter.Backspace:
+                case ControlCharacter.Delete:
                     {
-                        _isHandlingTelnetCommand = false;
-                    }
-                    continue;
-                }
+                        if (_protocolDecoder.IsBufferEmpty == false)
+                        {
+                            _protocolDecoder.RemoveLastCharacterFromBuffer();
+                            NetworkSession.SendAsync(BackspaceEraseSequence);
+                        }
 
-                // ANSI escape sequence 필터
-                if (_isHandlingEscapeSequence)
-                {
-                    if (currentByte >= 0x40 && currentByte <= 0x7E)
-                    {
-                        _isHandlingEscapeSequence = false;
+                        return;
                     }
 
-                    continue;
-                }
-                ControlCharacter controlCharacter = (ControlCharacter)currentByte;
+                case ControlCharacter.CarriageReturn:
+                    return;
 
-                switch (controlCharacter)
-                {
-                    case ControlCharacter.Esc:
+                case ControlCharacter.LineFeed:
+                    {
+                        string commandLine = _protocolDecoder.GetFinalCommandAndClearBuffer();
+
+                        if (string.IsNullOrWhiteSpace(commandLine) == false)
                         {
-                            _isHandlingEscapeSequence = true;
-                            continue;
+                            commandExecutionActorRef.Post(new RunCommandMessage(commandLine), Self);
                         }
-                        
-                    case ControlCharacter.Backspace:
-                    case ControlCharacter.Delete:
-                        {
-                            if (_inputBuffer.Length > 0)
-                            {
-                                _inputBuffer.Length--;
+                        return;
+                    }
 
-                                byte[] visualEraseSequence = [0x08, 0x20, 0x08];
-                                NetworkSession.SendAsync(visualEraseSequence);
-                            }
-                            continue;
-                        }
-
-                    case ControlCharacter.CarriageReturn:
-                        continue;
-
-                    case ControlCharacter.LineFeed:
-                        {
-                            string commandLine = _inputBuffer.ToString();
-                            _inputBuffer.Clear();
-
-                            if (!string.IsNullOrWhiteSpace(commandLine))
-                            {
-                                commandExecutionActorRef.Post(new RunCommandMessage(commandLine), Self);
-                            }
-                            continue;
-                        }
-                    case ControlCharacter.EndOfText:
-                        {
-                            commandExecutionActorRef.Post(new CancelCommandMessage(), Self);
-                            continue;
-                        }
-                }
-                _inputBuffer.Append((char)currentByte);
-                NetworkSession.SendAsync([currentByte]);
+                case ControlCharacter.EndOfText:
+                    {
+                        commandExecutionActorRef.Post(new CancelCommandMessage(), Self);
+                        return;
+                    }
             }
+
+            _protocolDecoder.AppendCharacterToBuffer(character);
+            NetworkSession.SendAsync([(byte)character]);
         }
     }
 }

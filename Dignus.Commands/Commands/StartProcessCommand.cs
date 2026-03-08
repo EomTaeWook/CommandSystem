@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Dignus.Commands.Commands
 {
-    [Command("start")]
+    [GlobalCommand("start")]
     internal class StartProcessCommand : ICommand
     {
         public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)

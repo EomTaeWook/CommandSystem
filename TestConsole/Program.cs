@@ -19,12 +19,15 @@ var module = new LocalCommandRunner();
 
 module.AddCommand<Close>();
 
-module.AddCommand("l", "loop desc", TestAsync);
+module.AddCommand("process","l", "loop desc", TestAsync);
 
 module.AddMiddleware((ref CommandPipelineContext context, ref AsyncPipelineNext<CommandPipelineContext> next) =>
 {
     var auth = context.Command.GetType().GetCustomAttribute<AuthAttribute>();
-
+    if(auth == null)
+    {
+        return next.InvokeAsync(ref context);
+    }
     if (auth.Execute(context) == false)
     {
         context.SenderActorRef.Post(new CommandResponseMessage()

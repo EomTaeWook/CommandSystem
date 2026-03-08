@@ -34,8 +34,7 @@ namespace Dignus.Commands.Internals
             foreach (var type in assembly.GetTypes())
             {
                 if (type.GetCustomAttributes<CommandAttribute>().Any() ||
-                    type.GetCustomAttributes<MultipleCommandAttribute>().Any() ||
-                    type.GetCustomAttributes<LocalCommandAttribute>().Any())
+                    type.GetCustomAttributes<GlobalCommandAttribute>().Any())
                 {
                     AddCommand(type);
                 }
@@ -67,86 +66,81 @@ namespace Dignus.Commands.Internals
             }
             _serviceProvider = _serviceContainer.Build();
         }
-
+        public void AddCommand(string path, string command, string desc, Func<string[], IActorRef, CancellationToken, Task> action)
+        {
+            AddCommandInternal(path, command, new ActionCommand(action, desc), false);
+        }
         public void AddCommand(string command, string desc, Func<string[], IActorRef, CancellationToken, Task> action)
         {
-            AddCommand(command, new ActionCommand(action, desc), false);
+            AddCommand(string.Empty, command, desc, action);
         }
-        private void AddCommand<T>(string commandName, T command, bool isLocalCommand) where T : class, ICommand
+        private void AddCommandInternal<T>(string commandPath, string commandName, T command, bool isGlobalCommand) where T : class, IPathCommand
         {
-            if (isLocalCommand == true)
+            if (isGlobalCommand == true)
             {
-                _commandTable.AddLoaclCommand(commandName, typeof(T));
+                _commandTable.AddGlobalCommand(commandName, typeof(T));
             }
             else
             {
-                _commandTable.AddCommand(commandName, typeof(T));
+                _commandTable.AddCommand(commandPath, commandName, typeof(T));
             }
 
             _serviceContainer.RegisterType(commandName, command);
         }
 
-        public void AddCommand<T>(T command) where T : class, ICommand
+        public void AddCommand<T>(T command) where T : class, IPathCommand
         {
             var commandType = command.GetType();
-            var cmdAttributeType = typeof(CommandAttribute);
-            var multipleCmdAttributeType = typeof(MultipleCommandAttribute);
-            var localCmdAttributeType = typeof(LocalCommandAttribute);
+            var commandAttrType = typeof(CommandAttribute);
+            var globalCommandAttrType = typeof(GlobalCommandAttribute);
 
-            if (commandType.IsDefined(localCmdAttributeType))
-            {
-                var attr = commandType.GetCustomAttribute<LocalCommandAttribute>();
-                AddCommand(attr.Name, command, true);
-            }
-            else if (commandType.IsDefined(multipleCmdAttributeType))
-            {
-                var attr = commandType.GetCustomAttribute<MultipleCommandAttribute>();
-                foreach (var item in attr.Names)
-                {
-                    AddCommand(item, command, false);
-                }
-            }
-            else if (commandType.IsDefined(cmdAttributeType))
+            if (commandType.IsDefined(commandAttrType))
             {
                 var attr = commandType.GetCustomAttribute<CommandAttribute>();
-                AddCommand(attr.CommandName, command, false);
+                AddCommandInternal(attr.CommandPath, attr.CommandName, command, false);
+            }
+            else if (commandType.IsDefined(globalCommandAttrType))
+            {
+                var attrs = commandType.GetCustomAttributes<GlobalCommandAttribute>();
+                foreach (var attr in attrs)
+                {
+                    AddCommandInternal(string.Empty, attr.CommandName, command, true);
+                }
             }
         }
-        public void AddCommand<T>() where T : ICommand
+        public void AddCommand<T>() where T : IPathCommand
         {
             AddCommand(typeof(T));
         }
+
         public void AddCommand(Type commandType)
         {
-            if (typeof(ICommand).IsAssignableFrom(commandType) == false || commandType.IsInterface == true)
+            if (typeof(IPathCommand).IsAssignableFrom(commandType) == false || commandType.IsInterface == true)
             {
                 throw new InvalidCastException(nameof(commandType));
             }
 
-            var cmdAttributeType = typeof(CommandAttribute);
-            var multipleCmdAttributeType = typeof(MultipleCommandAttribute);
-            var localCmdAttributeType = typeof(LocalCommandAttribute);
+            var commandAttrType = typeof(CommandAttribute);
+            var globalCommandAttrType = typeof(GlobalCommandAttribute);
 
             var commandNames = new List<string>();
-            bool isLocalCommand = false;
-            if (commandType.IsDefined(cmdAttributeType) == true)
+            var commandPath = string.Empty;
+            bool isGlobalCommand = false;
+            if (commandType.IsDefined(commandAttrType) == true)
             {
-                var attr = commandType.GetCustomAttribute(cmdAttributeType) as CommandAttribute;
+                var attr = commandType.GetCustomAttribute<CommandAttribute>();
+                commandPath = attr.CommandPath;
                 commandNames.Add(attr.CommandName);
             }
-            else if (commandType.IsDefined(multipleCmdAttributeType) == true)
+            else if (commandType.IsDefined(globalCommandAttrType) == true)
             {
-                var attr = commandType.GetCustomAttribute(multipleCmdAttributeType) as MultipleCommandAttribute;
-                foreach (var name in attr.Names)
+                isGlobalCommand = true;
+
+                var attrs = commandType.GetCustomAttributes<GlobalCommandAttribute>();
+                foreach (var attr in attrs)
                 {
-                    commandNames.Add(name);
+                    commandNames.Add(attr.CommandName);
                 }
-            }
-            else if (commandType.IsDefined(localCmdAttributeType))
-            {
-                var attr = commandType.GetCustomAttribute(localCmdAttributeType) as LocalCommandAttribute;
-                commandNames.Add(attr.Name);
-                isLocalCommand = true;
             }
             else
             {
@@ -155,13 +149,13 @@ namespace Dignus.Commands.Internals
 
             foreach (var commandName in commandNames)
             {
-                if (isLocalCommand)
+                if (isGlobalCommand)
                 {
-                    _commandTable.AddLoaclCommand(commandName, commandType);
+                    _commandTable.AddGlobalCommand(commandName, commandType);
                 }
                 else
                 {
-                    _commandTable.AddCommand(commandName, commandType);
+                    _commandTable.AddCommand(commandPath, commandName, commandType);
                 }
 
                 _serviceContainer.RegisterType(commandName, commandType, LifeScope.Transient);

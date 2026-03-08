@@ -1,21 +1,28 @@
 ﻿using Dignus.Actor.Core.Actors;
 using Dignus.Commands.Attributes;
 using Dignus.Commands.Interfaces;
+using Dignus.Commands.Messages;
 
 namespace Dignus.Commands.Commands
 {
-    [GlobalCommand("clr")]
-    internal class ConsoleClearCommand : ICommand
+    [GlobalCommand("cd")]
+    internal class ChangeDirectoryCommand : ICommand
     {
         public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
         {
-            Console.Clear();
+            string path = args.Length == 0 ? "/" : args[0];
+
+            sender.Post(new ChangeDirectoryRequestMessage 
+            {
+                Path = path
+            });
+
             return Task.CompletedTask;
         }
 
         public string Print()
         {
-            return "console 창을 지웁니다.";
+            return "현재 명령 경로를 변경합니다";
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Dignus.Commands.Commands
 {
-    [Command("stop")]
+    [GlobalCommand("stop")]
     internal class StopProcssCommand : ICommand
     {
         public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)

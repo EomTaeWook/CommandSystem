@@ -21,63 +21,86 @@ namespace Dignus.Commands.Internals.Actors
         {
             if (message is RunCommandMessage runCommandMessage)
             {
-                _commandMessages.Add(runCommandMessage);
-
-                if (_cancellationToken != null)
-                {
-                    return;
-                }
-
-                if (_commandMessages.TryRead(out var item))
-                {
-                    await RunCommandAsync(item.CommandLine, sender);
-                }
+                await HandleRunCommandAsync(runCommandMessage, sender);
             }
             else if(message is CancelCommandMessage)
             {
-                if(_cancellationToken != null)
-                {
-                    _cancellationToken.Cancel();
-                }
-                else
-                {
-                    onExitRequested?.Invoke();
-                }
+                await HandleCancelCommandAsync();
             }
             else if(message is CompleteCommandMessage)
             {
-                _cancellationToken.Dispose();
+                await HandleCompleteCommandAsync(sender);
+            }
 
-                _cancellationToken = null;
+        }
+        private async Task HandleCompleteCommandAsync(IActorRef sender)
+        {
+            _cancellationToken?.Dispose();
 
-                if (_commandMessages.TryRead(out var item))
-                {
-                    await RunCommandAsync(item.CommandLine, sender);
-                }
+            _cancellationToken = null;
+
+            if (_commandMessages.TryRead(out var item))
+            {
+                await RunCommandAsync(item.CurrentPath, item.CommandLine, sender);
             }
         }
-        public async Task RunCommandAsync(string line, IActorRef actorRef)
+        private Task HandleCancelCommandAsync()
+        {
+            if (_cancellationToken != null)
+            {
+                _cancellationToken.Cancel();
+            }
+            else
+            {
+                onExitRequested?.Invoke();
+            }
+            return Task.CompletedTask;
+        }
+
+        private async Task HandleRunCommandAsync(RunCommandMessage runCommandMessage, IActorRef sender)
+        {
+            _commandMessages.Add(runCommandMessage);
+
+            if (_cancellationToken != null)
+            {
+                return;
+            }
+
+            if (_commandMessages.TryRead(out var item))
+            {
+                await RunCommandAsync(item.CurrentPath, item.CommandLine, sender);
+            }
+        }
+        private async Task RunCommandAsync(string currentPath, string commandLine, IActorRef actorRef)
         {
             if (_cancellationToken != null)
             {
                 return;
             }
             _cancellationToken = new CancellationTokenSource();
-            await RunCommandAsync(line, false, actorRef, _cancellationToken.Token);
+            await RunCommandAsync(currentPath, commandLine, false, actorRef, _cancellationToken.Token);
         }
-        public Task RunCommandAsync(string line, bool isAlias, IActorRef actorRef, CancellationToken cancellationToken)
+        private Task RunCommandAsync(string currentPath, string commandLine, bool isAlias, IActorRef actorRef, CancellationToken cancellationToken)
         {
-            var splits = line.Split(" ");
-            _ = ExecuteCommandInternalAsync(splits[0], splits[1..], isAlias, actorRef, cancellationToken);
+            var splits = commandLine.Split(" ");
+            _ = ExecuteCommandInternalAsync(currentPath, splits[0], splits[1..], isAlias, actorRef, cancellationToken);
             return Task.CompletedTask;
         }
 
-        private async Task ExecuteCommandInternalAsync(string commandName,
+        private async Task ExecuteCommandInternalAsync(
+            string currentPath,
+            string commandName,
             string[] args,
             bool isAlias,
             IActorRef sender,
             CancellationToken cancellationToken)
         {
+            if(string.IsNullOrWhiteSpace(commandName))
+            {
+                sender.Post(new CompleteCommandMessage(), Self);
+                return;
+            }
+
             var aliasTable = serviceProvider.GetService<AliasTable>();
             if (aliasTable.Alias.ContainsKey(commandName) == true && isAlias == false)
             {
@@ -85,30 +108,36 @@ namespace Dignus.Commands.Internals.Actors
                 sb.Append(aliasTable.Alias[commandName].Cmd);
                 sb.Append(string.Join(" ", args));
 
-                await RunCommandAsync(sb.ToString(), true, sender, cancellationToken);
+                await RunCommandAsync(currentPath, sb.ToString(), true, sender, cancellationToken);
             }
 
             var commandTable = serviceProvider.GetService<CommandTable>();
-            var commandType = commandTable.GetCommandType(commandName);
+            var commandType = commandTable.GetCommandType(currentPath, commandName);
 
             if (commandType == null)
             {
-                sender.Post(new CommandResponseMessage() 
-                {
-                    Content = $"Command `{commandName}` was not found. Please type 'help' to see the available commands."
-                }, Self);
+                commandType = commandTable.GetGlobalCommandType(commandName);
 
-                sender.Post(new CompleteCommandMessage(), Self);
-                return;
+                if(commandType == null)
+                {
+                    sender.Post(new CommandResponseMessage()
+                    {
+                        Content = $"Command `{commandName}` was not found. Please type 'help' to see the available commands."
+                    }, Self);
+
+                    sender.Post(new CompleteCommandMessage(), Self);
+                    return;
+                }
             }
 
             try
             {
-                var command = (ICommand)serviceProvider.GetService(commandType);
+                var command = (IPathCommand)serviceProvider.GetService(commandType);
                 var context = new CommandPipelineContext()
                 {
                     CancellationToken = cancellationToken,
                     Command = command,
+                    CurrentPath = currentPath,
                     CommandArguments = args,
                     SenderActorRef = sender
                 };

@@ -2,9 +2,13 @@
 
 namespace Dignus.Commands.Interfaces
 {
-    public interface ICommand
+    public interface ICommand : IPathCommand
     {
         Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken);
-        string Print();
+
+        Task IPathCommand.InvokeAsync(string[] args, string currentPath, IActorRef sender, CancellationToken cancellationToken) 
+        {
+            return InvokeAsync(args, sender, cancellationToken);
+        } 
     }
 }

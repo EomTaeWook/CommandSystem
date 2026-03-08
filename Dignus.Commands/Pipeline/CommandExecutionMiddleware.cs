@@ -10,6 +10,7 @@ namespace Dignus.Commands.Pipeline
         {
             var command = context.Command;
             return command.InvokeAsync(context.CommandArguments,
+                context.CurrentPath,
                 context.SenderActorRef,
                 context.CancellationToken);
         }

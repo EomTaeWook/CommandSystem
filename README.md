@@ -33,7 +33,7 @@ Lightweight command execution system for **local console** and **telnet remote c
 # Quick Start
 
 ```csharp
-using CommandSystem;
+using Dignus.Commands;
 
 var module = new LocalCommandRunner();
 
@@ -52,7 +52,7 @@ Run commands directly from the local console.
 로컬 콘솔에서 직접 명령을 입력받아 실행합니다.
 
 ```csharp
-using CommandSystem;
+using Dignus.Commands;
 
 var module = new LocalCommandRunner();
 
@@ -71,7 +71,7 @@ Start a telnet server and execute commands remotely.
 텔넷 서버를 열고 외부 텔넷 클라이언트에서 접속하여 명령을 실행합니다.
 
 ```csharp
-using CommandSystem;
+using Dignus.Commands;
 
 var module = new TelnetCommandRunner(port: 50000);
 
@@ -99,8 +99,8 @@ Note
 Create a command by implementing `ICommand`.
 
 ```csharp
-using CommandSystem.Attributes;
-using CommandSystem.Interfaces;
+using Dignus.Commands.Attributes;
+using Dignus.Commands.Interfaces;
 using Dignus.Actor.Core;
 using System.Diagnostics;
 

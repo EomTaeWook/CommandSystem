@@ -2,8 +2,10 @@
 
 namespace Dignus.Commands.Messages
 {
-    internal struct RunCommandMessage(string commandLine) : IActorMessage
+    internal readonly struct RunCommandMessage(string currentPath, string commandLine) : IActorMessage
     {
         public string CommandLine { get; } = commandLine;
+
+        public string CurrentPath { get; } = currentPath;
     }
 }

@@ -5,8 +5,9 @@ namespace Dignus.Commands.Pipeline
 {
     public readonly struct CommandPipelineContext
     {
-        public ICommand Command { get; init; }
+        public IPathCommand Command { get; init; }
         public IActorRef SenderActorRef { get; init; }
+        public string CurrentPath { get; init; }
         public string[] CommandArguments { get; init; }
 
         public CancellationToken CancellationToken { get; init; }

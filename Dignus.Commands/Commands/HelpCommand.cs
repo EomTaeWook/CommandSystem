@@ -7,35 +7,26 @@ using System.Text;
 
 namespace Dignus.Commands.Commands
 {
-    [MultipleCommand("help", "?", "h")]
+    [GlobalCommand("h")]
+    [GlobalCommand("?")]
+    [GlobalCommand("help")]
     internal class HelpCommand(AliasTable aliasTable,
         CommandTable commandTable,
-        IServiceProvider serviceProvider) : ICommand
+        IServiceProvider serviceProvider) : IPathCommand
     {
-        public Task InvokeAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
+        public Task InvokeAsync(string[] args, string currentPath, IActorRef sender, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
+            sb.AppendLine();
 
-            foreach (var name in commandTable.GetCommandList())
+            foreach (var name in commandTable.GetGlobalCommandList())
             {
-                var commandType = commandTable.GetCommandType(name);
-                var command = (ICommand)serviceProvider.GetService(commandType);
+                var commandType = commandTable.GetGlobalCommandType(name);
+                var command = (IPathCommand)serviceProvider.GetService(commandType);
                 sb.AppendLine($"{name} : {command.Print()}");
             }
 
-            if(commandTable.GetLocalCommandList().Any())
-            {
-                sb.AppendLine();
-            }
-            
-            foreach (var name in commandTable.GetLocalCommandList())
-            {
-                var commandType = commandTable.GetCommandType(name);
-                var command = (ICommand)serviceProvider.GetService(commandType);
-                sb.AppendLine($"{name} : {command.Print()}");
-            }
-
-            if(aliasTable.Alias.Count > 0)
+            if (aliasTable.Alias.Count > 0)
             {
                 sb.AppendLine();
             }
@@ -45,11 +36,22 @@ namespace Dignus.Commands.Commands
                 sb.AppendLine($"{item.Alias} : {item.Cmd}");
             }
 
-            if (sb.Length > 0)
-            {
-                sb.Length -= Environment.NewLine.Length;
-            }
+            sb.AppendLine();
 
+            foreach (var name in commandTable.GetCommandListByPath(currentPath))
+            {
+                var commandType = commandTable.GetCommandType(name);
+                var command = (IPathCommand)serviceProvider.GetService(commandType);
+
+                string displayName = name;
+
+                if (string.IsNullOrWhiteSpace(currentPath) == false)
+                {
+                    displayName = name[(currentPath.Length + 1)..];
+                }
+                sb.AppendLine($"{displayName} : {command.Print()}");
+            }
+                        
             sender.Post(new CommandResponseMessage()
             {
                 Content = sb.ToString()

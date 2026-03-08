@@ -4,7 +4,7 @@ using Dignus.Commands.Interfaces;
 using Dignus.Commands.Internals;
 using System.Text.Json;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     [Command("unalias")]
     internal class UnAliasCommand(AliasTable aliasTable) : ICommand

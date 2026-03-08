@@ -3,7 +3,7 @@ using Dignus.Commands.Attributes;
 using Dignus.Commands.Interfaces;
 using System.Diagnostics;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     [Command("stop")]
     internal class StopProcssCommand : ICommand

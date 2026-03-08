@@ -6,7 +6,7 @@ using Dignus.Commands.Messages;
 using System.Text;
 using System.Text.Json;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     [Command("alias")]
     internal class AliasCommand(AliasTable aliasTable) : ICommand

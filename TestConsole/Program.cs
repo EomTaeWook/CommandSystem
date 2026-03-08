@@ -17,9 +17,9 @@ LogBuilder.Build();
 
 var module = new LocalCommandRunner();
 
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 
-module.AddCommandAction("l", "loop desc", TestAsync);
+module.AddCommand("l", "loop desc", TestAsync);
 
 module.AddMiddleware((ref CommandPipelineContext context, ref AsyncPipelineNext<CommandPipelineContext> next) =>
 {

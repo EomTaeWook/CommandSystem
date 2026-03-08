@@ -7,16 +7,28 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>EomTaeWook</Authors>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <PackageProjectUrl>https://github.com/EomTaeWook/CommandSystem</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/EomTaeWook/CommandSystem</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/EomTaeWook/Dignus.Commands</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EomTaeWook/Dignus.Commands</RepositoryUrl>
+    <Version>1.0.0</Version>
+    <PackageIcon>Icon.jpg</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(ConfigurationName)' == 'Release'">
-    <Exec Command="xcopy /Y /S &quot;$(TargetDir)CommandSystem.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
-    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
-    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.Log.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
-    <Exec Command="xcopy /Y /S &quot;$(TargetDir)Dignus.Sockets.dll&quot; &quot;$(SolutionDir)publish\$(TargetFramework)\&quot;" />
-  </Target>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\publish\Icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dignus.ActorServer" Version="1.1.7" />
   </ItemGroup>
+
+  <Target Name="PostPack" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
+    <Exec Command="xcopy /Y &quot;$(OutputPath)*.nupkg&quot; &quot;$(SolutionDir)publish\nuget\&quot;" />
+  </Target>
 </Project>

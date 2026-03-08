@@ -37,7 +37,7 @@ using Dignus.Commands;
 
 var module = new LocalCommandRunner();
 
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 
 module.Build();
 module.Run();
@@ -56,7 +56,7 @@ using Dignus.Commands;
 
 var module = new LocalCommandRunner();
 
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 
 module.Build();
 module.Run();
@@ -75,7 +75,7 @@ using Dignus.Commands;
 
 var module = new TelnetCommandRunner(port: 50000);
 
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 
 module.Build();
 module.Run();
@@ -123,7 +123,7 @@ internal class Close : ICommand
 Register the command
 
 ```csharp
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 ```
 
 ---
@@ -133,7 +133,7 @@ module.AddCommandAction<Close>();
 Commands can also be registered using delegates.
 
 ```csharp
-module.AddCommandAction("loop", "loop example", TestAsync);
+module.AddCommand("loop", "loop example", TestAsync);
 
 async Task TestAsync(string[] args, IActorRef sender, CancellationToken cancellationToken)
 {
@@ -245,7 +245,7 @@ sender.Post(new CommandResponseMessage()
 ```csharp
 var module = new LocalCommandRunner();
 
-module.AddCommandAction<Close>();
+module.AddCommand<Close>();
 
 module.Build();
 module.Run();

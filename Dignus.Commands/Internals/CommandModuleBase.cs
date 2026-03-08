@@ -1,6 +1,6 @@
 ﻿using Dignus.Actor.Core.Actors;
 using Dignus.Commands.Attributes;
-using Dignus.Commands.Cmd;
+using Dignus.Commands.Commands;
 using Dignus.Commands.Interfaces;
 using Dignus.DependencyInjection;
 using Dignus.DependencyInjection.Extensions;
@@ -37,7 +37,7 @@ namespace Dignus.Commands.Internals
                     type.GetCustomAttributes<MultipleCommandAttribute>().Any() ||
                     type.GetCustomAttributes<LocalCommandAttribute>().Any())
                 {
-                    AddCommandAction(type);
+                    AddCommand(type);
                 }
             }
         }
@@ -68,11 +68,11 @@ namespace Dignus.Commands.Internals
             _serviceProvider = _serviceContainer.Build();
         }
 
-        public void AddCommandAction(string command, string desc, Func<string[], IActorRef, CancellationToken, Task> action)
+        public void AddCommand(string command, string desc, Func<string[], IActorRef, CancellationToken, Task> action)
         {
-            AddCommandAction(command, new ActionCommand(action, desc), false);
+            AddCommand(command, new ActionCommand(action, desc), false);
         }
-        private void AddCommandAction<T>(string commandName, T command, bool isLocalCommand) where T : class, ICommand
+        private void AddCommand<T>(string commandName, T command, bool isLocalCommand) where T : class, ICommand
         {
             if (isLocalCommand == true)
             {
@@ -86,7 +86,7 @@ namespace Dignus.Commands.Internals
             _serviceContainer.RegisterType(commandName, command);
         }
 
-        public void AddCommandAction<T>(T command) where T : class, ICommand
+        public void AddCommand<T>(T command) where T : class, ICommand
         {
             var commandType = command.GetType();
             var cmdAttributeType = typeof(CommandAttribute);
@@ -96,27 +96,27 @@ namespace Dignus.Commands.Internals
             if (commandType.IsDefined(localCmdAttributeType))
             {
                 var attr = commandType.GetCustomAttribute<LocalCommandAttribute>();
-                AddCommandAction(attr.Name, command, true);
+                AddCommand(attr.Name, command, true);
             }
             else if (commandType.IsDefined(multipleCmdAttributeType))
             {
                 var attr = commandType.GetCustomAttribute<MultipleCommandAttribute>();
                 foreach (var item in attr.Names)
                 {
-                    AddCommandAction(item, command, false);
+                    AddCommand(item, command, false);
                 }
             }
             else if (commandType.IsDefined(cmdAttributeType))
             {
                 var attr = commandType.GetCustomAttribute<CommandAttribute>();
-                AddCommandAction(attr.CommandName, command, false);
+                AddCommand(attr.CommandName, command, false);
             }
         }
-        public void AddCommandAction<T>() where T : ICommand
+        public void AddCommand<T>() where T : ICommand
         {
-            AddCommandAction(typeof(T));
+            AddCommand(typeof(T));
         }
-        public void AddCommandAction(Type commandType)
+        public void AddCommand(Type commandType)
         {
             if (typeof(ICommand).IsAssignableFrom(commandType) == false || commandType.IsInterface == true)
             {

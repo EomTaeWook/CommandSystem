@@ -5,7 +5,7 @@ using Dignus.Commands.Internals;
 using Dignus.Commands.Messages;
 using System.Text;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     [MultipleCommand("help", "?", "h")]
     internal class HelpCommand(AliasTable aliasTable,

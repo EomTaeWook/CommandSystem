@@ -1,7 +1,7 @@
 ﻿using Dignus.Actor.Core.Actors;
 using Dignus.Commands.Interfaces;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     internal class ActionCommand(Func<string[], IActorRef, CancellationToken, Task> func, string desc) : ICommand
     {

@@ -2,7 +2,7 @@
 using Dignus.Commands.Attributes;
 using Dignus.Commands.Interfaces;
 
-namespace Dignus.Commands.Cmd
+namespace Dignus.Commands.Commands
 {
     [LocalCommand("clr")]
     internal class ConsoleClearCommand : ICommand

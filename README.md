@@ -1,5 +1,7 @@
 # Dignus.Commands
 
+[![NuGet](https://img.shields.io/nuget/v/Dignus.Commands.svg)](https://www.nuget.org/packages/Dignus.Commands)
+
 Lightweight command execution system for **local console** and **telnet remote control**.
 
 간단한 **로컬 콘솔 명령 실행**과 **텔넷 기반 원격 명령 실행**을 지원하는 커맨드 시스템입니다.

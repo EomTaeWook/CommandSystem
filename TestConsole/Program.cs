@@ -1,5 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Dignus.Actor.Core.Actors;
+using Dignus.Actor.Core;
 using Dignus.Commands;
 using Dignus.Commands.Attributes;
 using Dignus.Commands.Interfaces;

@@ -1,4 +1,4 @@
-﻿using Dignus.Actor.Core.Actors;
+﻿using Dignus.Actor.Core;
 using Dignus.Commands.Interfaces;
 
 namespace Dignus.Commands.Pipeline

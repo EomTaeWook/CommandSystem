@@ -1,4 +1,4 @@
-﻿using Dignus.Actor.Core.Actors;
+﻿using Dignus.Actor.Core;
 using Dignus.Commands.Attributes;
 using Dignus.Commands.Interfaces;
 using Dignus.Commands.Internals;

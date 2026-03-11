@@ -1,4 +1,4 @@
-﻿using Dignus.Actor.Core.Actors;
+﻿using Dignus.Actor.Core;
 using Dignus.Actor.Core.Messages;
 using Dignus.Collections;
 using Dignus.Commands.Interfaces;

@@ -1,6 +1,6 @@
-﻿using Dignus.Actor.Core.Actors;
+﻿using Dignus.Actor.Core;
 using Dignus.Actor.Core.Messages;
-using Dignus.Actor.Network.Actors;
+using Dignus.Actor.Network;
 using Dignus.Commands.Messages;
 using Dignus.Commands.Network.Decoders;
 using Dignus.Commands.Network.Messages;

@@ -5,8 +5,8 @@ using Dignus.Actor.Network.Options;
 using Dignus.Commands.Internals;
 using Dignus.Commands.Internals.Actors;
 using Dignus.Commands.Internals.Interfaces;
+using Dignus.Commands.Network.Codec;
 using Dignus.Commands.Network.Decoders;
-using Dignus.Commands.Network.Serializer;
 using System.Net;
 
 namespace Dignus.Commands.Network

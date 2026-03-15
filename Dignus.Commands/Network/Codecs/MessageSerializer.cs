@@ -1,10 +1,10 @@
-﻿using Dignus.Actor.Network.Messages;
-using Dignus.Actor.Network.Serialization;
+﻿using Dignus.Actor.Network.Codec;
+using Dignus.Actor.Network.Messages;
 using Dignus.Collections;
 using Dignus.Commands.Network.Messages;
 using Dignus.Sockets.Interfaces;
 
-namespace Dignus.Commands.Network.Serializer
+namespace Dignus.Commands.Network.Codec
 {
     internal class MessageSerializer : IActorMessageSerializer
     {

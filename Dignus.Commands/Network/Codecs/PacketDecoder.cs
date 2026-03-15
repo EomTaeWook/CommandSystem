@@ -1,5 +1,5 @@
 ﻿using Dignus.Actor.Core.Messages;
-using Dignus.Actor.Network.Protocol;
+using Dignus.Actor.Network.Codec;
 using Dignus.Collections;
 using Dignus.Commands.Network.Messages;
 using Dignus.Sockets;
@@ -7,7 +7,7 @@ using Dignus.Sockets.Interfaces;
 
 namespace Dignus.Commands.Network.Decoders
 {
-    public class PacketDecoder : IMessageDecoder
+    public class PacketDecoder : IActorMessageDecoder
     {
         public IActorMessage Deserialize(ReadOnlySpan<byte> packet)
         {
